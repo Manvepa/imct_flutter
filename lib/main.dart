@@ -9,8 +9,14 @@ import 'package:flutter/material.dart';
 // Importamos la pantalla inicial (SplashScreen) que mostraremos al arrancar la app.
 import 'src/screens/splash_screen.dart';
 
+// Importamos el cliente Dio para manejar las peticiones HTTP.
+import 'src/api/dio_client.dart';
+
 // La función main() es la que se ejecuta al iniciar la aplicación.
 void main() {
+  // Inicializar interceptores de Dio
+  DioClient.initializeInterceptors();
+
   // runApp() recibe un widget (en este caso MyApp) y lo convierte en la raíz de la interfaz.
   runApp(const MyApp());
 }
