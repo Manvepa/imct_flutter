@@ -1,99 +1,137 @@
-// ============================================
-// ARCHIVO: lib/src/services/evento_service.dart (NUEVO)
-// Servicio para manejar todas las peticiones relacionadas con eventos
-// ============================================
+// 📦 event_service.dart
+// Este archivo se encarga de la comunicación entre el frontend Flutter
+// y el backend Node.js (AppMovil) para obtener los eventos públicos
+// y los Top 10 eventos.
+//
+// Utiliza el paquete `dio` para hacer las peticiones HTTP y maneja
+// las respuestas JSON que vienen del backend, convirtiéndolas en
+// instancias del modelo `EventoModel`.
+//
+// ⚙️ Incluye impresión detallada (prints) para debuggear los datos
+// que llegan del backend, útil para verificar si las imágenes
+// están siendo devueltas correctamente.
 
-import 'package:dio/dio.dart';
-import '../../api/dio_client.dart';
-import '../../api/endpoints.dart';
-import '../../models/evento/event_model.dart';
+// ------------------------------------------------------------
+// 🔹 Importaciones necesarias
+// ------------------------------------------------------------
+import 'package:dio/dio.dart'; // Para realizar peticiones HTTP
+import '../../api/dio_client.dart'; // Configuración con la URL base del backend
+import '../../api/endpoints.dart'; // Modelo del evento
+import '../../models/evento/event_model.dart'; // Endpoints de la API
 
+// ------------------------------------------------------------
+// 🔹 Clase principal del servicio
+// ------------------------------------------------------------
 class EventoService {
+  // Instancia de Dio para hacer peticiones HTTP
   final Dio _dio = DioClient.instance;
 
-  /// Obtener el Top 10 de eventos
-  Future<List<EventoModel>> getTop10Eventos() async {
+  // ------------------------------------------------------------
+  // 🔸 Obtener todos los eventos públicos
+  // ------------------------------------------------------------
+  Future<List<EventoModel>> getPublicEventos() async {
     try {
-      print('📡 Solicitando Top 10 eventos...');
+      print('📡 Solicitando lista de eventos públicos...');
 
-      final response = await _dio.get(Endpoints.eventosTop10);
+      // Hacemos la petición al backend
+      final response = await _dio.get(Endpoints.eventos);
 
+      print('🛰️ URL solicitada: ${response.realUri}');
+      print('📥 Código de respuesta: ${response.statusCode}');
+      print('📦 Datos crudos recibidos: ${response.data}');
+
+      // Si la respuesta fue exitosa
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
+        final data = response.data;
 
-        // Convertir cada elemento del JSON a EventoModel
-        List<EventoModel> eventos = data
-            .map((json) => EventoModel.fromJson(json))
-            .toList();
+        // Verificamos si es una lista de eventos
+        print('🔍 Tipo de respuesta: ${data.runtimeType}');
+        if (data is List) {
+          print('✅ Se recibió una lista con ${data.length} eventos');
 
-        print('✅ Top 10 eventos obtenidos: ${eventos.length} eventos');
-        return eventos;
+          // Convertimos el JSON en lista de objetos EventoModel
+          final eventos = data
+              .map((json) => EventoModel.fromJson(json))
+              .toList();
+
+          // Mostramos información de depuración
+          for (int i = 0; i < eventos.length; i++) {
+            print('🎯 Evento[${i + 1}] -> ${eventos[i].nombre}');
+            print('🖼️ URL imagen: ${eventos[i].getImageUrl()}');
+          }
+
+          print('✅ Lista de eventos obtenida correctamente');
+          return eventos;
+        } else {
+          print('⚠️ La respuesta no fue una lista. Tipo: ${data.runtimeType}');
+          return [];
+        }
       } else {
-        throw Exception('Error al obtener eventos: ${response.statusCode}');
+        throw Exception(
+          'Error al obtener eventos públicos (Código: ${response.statusCode})',
+        );
       }
     } on DioException catch (e) {
-      print('❌ Error de red: ${e.message}');
-
-      // Manejo de diferentes tipos de errores
-      if (e.type == DioExceptionType.connectionTimeout) {
-        throw Exception('Timeout: El servidor tardó demasiado en responder');
-      } else if (e.type == DioExceptionType.receiveTimeout) {
-        throw Exception('Timeout: Tardó demasiado en recibir los datos');
-      } else if (e.response?.statusCode == 404) {
-        throw Exception('Endpoint no encontrado (404)');
-      } else if (e.response?.statusCode == 500) {
-        throw Exception('Error interno del servidor (500)');
-      } else {
-        throw Exception('Error de conexión: ${e.message}');
-      }
+      print('❌ Error de red (eventos públicos): ${e.message}');
+      throw Exception('Error de conexión: ${e.message}');
     } catch (e) {
-      print('❌ Error inesperado: $e');
+      print('❌ Error inesperado en getPublicEventos: $e');
       throw Exception('Error inesperado: $e');
     }
   }
 
-  /// Obtener todos los eventos
-  Future<List<EventoModel>> getTodosEventos() async {
+  // ------------------------------------------------------------
+  // 🔸 Obtener Top 10 de eventos públicos (con debug detallado)
+  // ------------------------------------------------------------
+  Future<List<EventoModel>> getTop10Eventos() async {
     try {
-      print('📡 Solicitando todos los eventos...');
+      print('📡 Solicitando Top 10 eventos públicos...');
 
-      final response = await _dio.get(Endpoints.eventos);
+      // Hacemos la petición al endpoint del backend
+      final response = await _dio.get(Endpoints.eventosTop10);
+
+      print('🛰️ URL solicitada: ${response.realUri}');
+      print('📥 Código de respuesta: ${response.statusCode}');
+      print('📦 Datos crudos recibidos: ${response.data}');
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
+        final data = response.data;
 
-        List<EventoModel> eventos = data
-            .map((json) => EventoModel.fromJson(json))
-            .toList();
+        // Verificamos el tipo de respuesta (importante para evitar errores tipo List vs Map)
+        print('🔍 Tipo de respuesta: ${data.runtimeType}');
+        if (data is List) {
+          print('✅ Se recibió una lista con ${data.length} elementos');
 
-        print('✅ Eventos obtenidos: ${eventos.length} eventos');
-        return eventos;
+          // Convertimos cada JSON en un objeto EventoModel
+          final eventos = data
+              .map((json) => EventoModel.fromJson(json))
+              .toList();
+
+          // Revisamos las imágenes que llegaron después de convertir
+          for (int i = 0; i < eventos.length; i++) {
+            print('🏆 Evento[${i + 1}] -> ${eventos[i].nombre}');
+            print('🖼️ URL imagen: ${eventos[i].getImageUrl()}');
+          }
+
+          print('✅ Top 10 eventos obtenidos correctamente');
+          return eventos;
+        } else {
+          // Si no es una lista (por ejemplo, si es un objeto con clave 'data')
+          print('⚠️ La respuesta no fue una lista. Tipo: ${data.runtimeType}');
+          print('🧩 Contenido de respuesta: $data');
+          return [];
+        }
       } else {
-        throw Exception('Error al obtener eventos: ${response.statusCode}');
+        throw Exception(
+          'Error al obtener Top 10 (Código: ${response.statusCode})',
+        );
       }
     } on DioException catch (e) {
-      print('❌ Error de red: ${e.message}');
+      print('❌ Error de red (Top10): ${e.message}');
       throw Exception('Error de conexión: ${e.message}');
-    }
-  }
-
-  /// Obtener un evento por ID
-  Future<EventoModel> getEventoById(int id) async {
-    try {
-      print('📡 Solicitando evento con ID: $id');
-
-      final response = await _dio.get('${Endpoints.eventoById}/$id');
-
-      if (response.statusCode == 200) {
-        EventoModel evento = EventoModel.fromJson(response.data);
-        print('✅ Evento obtenido: ${evento.nombre}');
-        return evento;
-      } else {
-        throw Exception('Error al obtener evento: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      print('❌ Error de red: ${e.message}');
-      throw Exception('Error de conexión: ${e.message}');
+    } catch (e) {
+      print('❌ Error inesperado en getTop10Eventos: $e');
+      throw Exception('Error inesperado: $e');
     }
   }
 }
