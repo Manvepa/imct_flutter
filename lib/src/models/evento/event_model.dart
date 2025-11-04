@@ -4,8 +4,7 @@
 // obtenido del backend público Node.js + Express.
 // ============================================================
 
-// Este modelo es compatible tanto con la respuesta de
-// `/api/public/eventos` como con `/api/public/eventos/top10`.
+import 'package:imct_flutter/src/api/api_config.dart'; // ✅ Para usar la URL base del backend
 
 class EventoModel {
   // ------------------------------------------------------------
@@ -38,8 +37,8 @@ class EventoModel {
   // FACTORY: Convertir desde JSON
   // ------------------------------------------------------------
   factory EventoModel.fromJson(Map<String, dynamic> json) {
-    // 👇 Si el backend devuelve el evento anidado dentro de la propiedad "evento",
-    // lo extraemos; de lo contrario, usamos el propio JSON.
+    // 👇 Si el backend devuelve el evento anidado dentro de la propiedad "evento"
+    // // lo extraemos; de lo contrario, usamos el propio JSON.
     final Map<String, dynamic> eventoData = json.containsKey('evento')
         ? json['evento']
         : json;
@@ -75,21 +74,19 @@ class EventoModel {
   // ------------------------------------------------------------
   // OBTENER URL FINAL DE IMAGEN
   // ------------------------------------------------------------
-  // Este método devuelve la URL completa que debe usarse en Image.network().
+  // Construye la URL completa usando la baseUrl del backend
+  // para no depender de IPs locales ni hardcodeadas.
   String getImageUrl() {
-    // Si la imagen está definida
     if (imagen != null && imagen!.isNotEmpty) {
-      // Si ya es una URL absoluta (http o https)
       if (imagen!.startsWith('http')) {
+        // Si ya es una URL completa, la devolvemos tal cual.
         return imagen!;
       }
-
-      // Si es una ruta relativa, construimos la URL base
-      // ⚠️ Asegúrate de reemplazar la IP con la de tu backend local o de producción
-      return 'http://192.168.0.12:3000$imagen';
+      // Si es una ruta relativa, la completamos con la URL base del backend
+      return '${ApiConfig.baseUrl}$imagen';
     }
 
-    // Si no hay imagen, devolvemos una URL de placeholder
+    // Si no hay imagen, devolvemos una URL genérica o nada
     return 'https://via.placeholder.com/400x300?text=${Uri.encodeComponent(nombre)}';
   }
 }

@@ -4,5 +4,5 @@
 
 class ApiConfig {
   // 🔗 URL base del backend
-  static const String baseUrl = 'http://192.168.1.5:3000/api';
+  static const String baseUrl = 'https://appmovil-backend.onrender.com/api';
 }

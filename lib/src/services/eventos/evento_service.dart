@@ -1,34 +1,35 @@
-// 📦 event_service.dart
-// Este archivo se encarga de la comunicación entre el frontend Flutter
-// y el backend Node.js (AppMovil) para obtener los eventos públicos
-// y los Top 10 eventos.
+// 📁 lib/src/services/evento/evento_service.dart
+// ============================================================
+// DESCRIPCIÓN:
+// Servicio encargado de obtener los eventos del backend público
+// y almacenarlos en caché local para poder mostrarlos sin conexión.
 //
-// Utiliza el paquete `dio` para hacer las peticiones HTTP y maneja
-// las respuestas JSON que vienen del backend, convirtiéndolas en
-// instancias del modelo `EventoModel`.
-//
-// ⚙️ Incluye impresión detallada (prints) para debuggear los datos
-// que llegan del backend, útil para verificar si las imágenes
-// están siendo devueltas correctamente.
+// - Usa `Dio` para las peticiones HTTP.
+// - Usa `SharedPreferences` para guardar los datos localmente.
+// - Evita errores visuales si no hay conexión.
+// ============================================================
 
 // ------------------------------------------------------------
 // 🔹 Importaciones necesarias
 // ------------------------------------------------------------
 import 'package:dio/dio.dart'; // Para realizar peticiones HTTP
-import '../../api/dio_client.dart'; // Configuración con la URL base del backend
-import '../../api/endpoints.dart'; // Modelo del evento
-import '../../models/evento/event_model.dart'; // Endpoints de la API
+import 'package:shared_preferences/shared_preferences.dart'; // Para guardar datos localmente (modo offline)
+import 'dart:convert'; // Para convertir listas y objetos a JSON
+
+import '../../api/dio_client.dart'; // Configuración base de Dio
+import '../../api/endpoints.dart'; // Rutas del backend (eventos, top10)
+import '../../models/evento/event_model.dart'; // Modelo de datos del evento
 
 // ------------------------------------------------------------
-// 🔹 Clase principal del servicio
+// 🔹 Clase principal del servicio de eventos
 // ------------------------------------------------------------
 class EventoService {
-  // Instancia de Dio para hacer peticiones HTTP
+  // Instancia única de Dio configurada con la URL base del backend
   final Dio _dio = DioClient.instance;
 
-  // ------------------------------------------------------------
-  // 🔸 Obtener todos los eventos públicos
-  // ------------------------------------------------------------
+  // ============================================================
+  // 🔸 Obtener todos los eventos públicos (con modo offline)
+  // ============================================================
   Future<List<EventoModel>> getPublicEventos() async {
     try {
       print('📡 Solicitando lista de eventos públicos...');
@@ -36,102 +37,110 @@ class EventoService {
       // Hacemos la petición al backend
       final response = await _dio.get(Endpoints.eventos);
 
-      print('🛰️ URL solicitada: ${response.realUri}');
-      print('📥 Código de respuesta: ${response.statusCode}');
-      print('📦 Datos crudos recibidos: ${response.data}');
-
-      // Si la respuesta fue exitosa
+      // Si la respuesta fue exitosa (HTTP 200)
       if (response.statusCode == 200) {
         final data = response.data;
 
-        // Verificamos si es una lista de eventos
-        print('🔍 Tipo de respuesta: ${data.runtimeType}');
+        // Verificamos si lo que viene del backend es una lista
         if (data is List) {
-          print('✅ Se recibió una lista con ${data.length} eventos');
+          print('✅ Se recibieron ${data.length} eventos');
 
-          // Convertimos el JSON en lista de objetos EventoModel
+          // Convertimos los JSON a objetos EventoModel
           final eventos = data
               .map((json) => EventoModel.fromJson(json))
               .toList();
 
-          // Mostramos información de depuración
-          for (int i = 0; i < eventos.length; i++) {
-            print('🎯 Evento[${i + 1}] -> ${eventos[i].nombre}');
-            print('🖼️ URL imagen: ${eventos[i].getImageUrl()}');
-          }
+          // ✅ Guardamos los datos en caché local
+          await _guardarEventosEnCache('public_eventos', eventos);
 
-          print('✅ Lista de eventos obtenida correctamente');
+          print('💾 Eventos públicos guardados en caché correctamente');
           return eventos;
-        } else {
-          print('⚠️ La respuesta no fue una lista. Tipo: ${data.runtimeType}');
-          return [];
         }
-      } else {
-        throw Exception(
-          'Error al obtener eventos públicos (Código: ${response.statusCode})',
-        );
       }
+
+      print('⚠️ Respuesta inesperada del servidor, usando caché...');
+      return await _obtenerEventosDesdeCache('public_eventos');
     } on DioException catch (e) {
-      print('❌ Error de red (eventos públicos): ${e.message}');
-      throw Exception('Error de conexión: ${e.message}');
+      // Si hay error de red, cargamos los datos guardados localmente
+      print('❌ Error de red: ${e.message}');
+      print('📴 Mostrando datos en caché (modo offline)...');
+      return await _obtenerEventosDesdeCache('public_eventos');
     } catch (e) {
-      print('❌ Error inesperado en getPublicEventos: $e');
-      throw Exception('Error inesperado: $e');
+      print('❌ Error inesperado: $e');
+      return await _obtenerEventosDesdeCache('public_eventos');
     }
   }
 
-  // ------------------------------------------------------------
-  // 🔸 Obtener Top 10 de eventos públicos (con debug detallado)
-  // ------------------------------------------------------------
+  // ============================================================
+  // 🔸 Obtener el Top 10 de eventos (con modo offline)
+  // ============================================================
   Future<List<EventoModel>> getTop10Eventos() async {
     try {
-      print('📡 Solicitando Top 10 eventos públicos...');
+      print('📡 Solicitando Top 10 eventos...');
 
-      // Hacemos la petición al endpoint del backend
+      // Petición HTTP al backend
       final response = await _dio.get(Endpoints.eventosTop10);
-
-      print('🛰️ URL solicitada: ${response.realUri}');
-      print('📥 Código de respuesta: ${response.statusCode}');
-      print('📦 Datos crudos recibidos: ${response.data}');
 
       if (response.statusCode == 200) {
         final data = response.data;
 
-        // Verificamos el tipo de respuesta (importante para evitar errores tipo List vs Map)
-        print('🔍 Tipo de respuesta: ${data.runtimeType}');
+        // Si recibimos una lista de eventos
         if (data is List) {
-          print('✅ Se recibió una lista con ${data.length} elementos');
+          print('✅ Se recibieron ${data.length} eventos del Top 10');
 
-          // Convertimos cada JSON en un objeto EventoModel
           final eventos = data
               .map((json) => EventoModel.fromJson(json))
               .toList();
 
-          // Revisamos las imágenes que llegaron después de convertir
-          for (int i = 0; i < eventos.length; i++) {
-            print('🏆 Evento[${i + 1}] -> ${eventos[i].nombre}');
-            print('🖼️ URL imagen: ${eventos[i].getImageUrl()}');
-          }
+          // ✅ Guardamos los datos localmente
+          await _guardarEventosEnCache('top10_eventos', eventos);
 
-          print('✅ Top 10 eventos obtenidos correctamente');
+          print('💾 Top 10 guardado en caché correctamente');
           return eventos;
-        } else {
-          // Si no es una lista (por ejemplo, si es un objeto con clave 'data')
-          print('⚠️ La respuesta no fue una lista. Tipo: ${data.runtimeType}');
-          print('🧩 Contenido de respuesta: $data');
-          return [];
         }
-      } else {
-        throw Exception(
-          'Error al obtener Top 10 (Código: ${response.statusCode})',
-        );
       }
+
+      print('⚠️ Respuesta inesperada del servidor, usando caché...');
+      return await _obtenerEventosDesdeCache('top10_eventos');
     } on DioException catch (e) {
       print('❌ Error de red (Top10): ${e.message}');
-      throw Exception('Error de conexión: ${e.message}');
+      print('📴 Mostrando Top10 desde caché...');
+      return await _obtenerEventosDesdeCache('top10_eventos');
     } catch (e) {
-      print('❌ Error inesperado en getTop10Eventos: $e');
-      throw Exception('Error inesperado: $e');
+      print('❌ Error inesperado en Top10: $e');
+      return await _obtenerEventosDesdeCache('top10_eventos');
     }
+  }
+
+  // ============================================================
+  // 🔹 Métodos privados para caché local (SharedPreferences)
+  // ============================================================
+
+  // Guarda los eventos en caché local en formato JSON
+  Future<void> _guardarEventosEnCache(
+    String key,
+    List<EventoModel> eventos,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = jsonEncode(eventos.map((e) => e.toJson()).toList());
+    await prefs.setString(key, data);
+  }
+
+  // Obtiene los eventos desde la caché local
+  Future<List<EventoModel>> _obtenerEventosDesdeCache(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString(key);
+
+    if (data != null) {
+      final List<dynamic> jsonList = jsonDecode(data);
+      final eventos = jsonList
+          .map((json) => EventoModel.fromJson(json))
+          .toList();
+      print('📂 ${eventos.length} eventos cargados desde caché');
+      return eventos;
+    }
+
+    print('⚠️ No hay datos guardados en caché para "$key"');
+    return [];
   }
 }
