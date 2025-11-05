@@ -8,7 +8,7 @@ class DioClient {
   // 🔧 Se crea una única instancia de Dio (patrón Singleton)
   static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: ApiConfig.baseUrl, // URL base del backend
+      baseUrl: '${ApiConfig.baseUrl}api/', // ✅ Se agrega /api solo aquí
       connectTimeout: const Duration(seconds: 10), // Tiempo máximo de conexión
       receiveTimeout: const Duration(
         seconds: 15,

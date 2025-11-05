@@ -2,62 +2,253 @@
 // ARCHIVO: lib/src/screens/pantallaInicio/area_info_basica.dart
 // ============================================
 
-import 'package:flutter/material.dart';
-import '../../models/app_models.dart';
+// Importaciones necesarias para el funcionamiento del widget
 
-class AreaInfoBasica extends StatelessWidget {
-  final String cityName;
-  final String? backgroundImage;
-  final String backgroundColor;
-  final List<InfoBasicaItem> items;
-  final bool showStatusBar;
+// Para manejar temporizadores (Timer)
+import 'dart:async'; // Permite ejecutar acciones periódicas
 
+// Para decodificar JSON desde la API
+import 'dart:convert'; // Necesario para json.decode
+
+// Paquete base de Flutter con widgets y estilos
+import 'package:flutter/material.dart'; // Widgets, estilos, layouts
+
+// Para realizar solicitudes HTTP a APIs externas
+import 'package:http/http.dart' as http; // Permite llamadas HTTP
+
+// Importa el modelo InfoBasicaItem de la carpeta de modelos
+import '../../models/app_models.dart'; // Define la estructura de los items
+
+// Widget principal que muestra la sección de información básica
+// StatefulWidget para poder actualizar hora y clima dinámicamente
+class AreaInfoBasica extends StatefulWidget {
+  // Nombre de la ciudad a mostrar
+  final String cityName; // Nombre de la ciudad
+
+  // Imagen de fondo opcional
+  final String? backgroundImage; // URL de la imagen de fondo
+
+  // Color de fondo en formato hexadecimal, si no hay imagen
+  final String backgroundColor; // Color de fondo por defecto
+
+  // Lista de íconos o botones que aparecerán en la sección inferior
+  final List<InfoBasicaItem> items; // Botones o iconos a mostrar
+
+  // Indica si se debe mostrar la barra de estado superior
+  final bool showStatusBar; // true para mostrar, false para ocultar
+
+  // Constructor con parámetros requeridos y opcionales
   const AreaInfoBasica({
     Key? key,
-    required this.cityName,
-    this.backgroundImage,
-    this.backgroundColor = '#2C5F4F',
-    required this.items,
-    this.showStatusBar = true,
+    required this.cityName, // Ciudad obligatoria
+    this.backgroundImage, // Imagen opcional
+    this.backgroundColor = '#2C5F4F', // Verde oscuro por defecto
+    required this.items, // Lista de botones obligatoria
+    this.showStatusBar = true, // Barra de estado visible por defecto
   }) : super(key: key);
 
+  // Crea el estado correspondiente a este StatefulWidget
+  @override
+  State<AreaInfoBasica> createState() => _AreaInfoBasicaState(); // Devuelve el estado privado
+}
+
+// Clase privada que define el estado del widget AreaInfoBasica
+class _AreaInfoBasicaState extends State<AreaInfoBasica> {
+  // Variables para mostrar la hora, la temperatura y el clima
+  String _currentTime = ''; // Hora actual como texto
+  String _temperature = ''; // Temperatura actual como texto
+  String _weatherDescription = ''; // Descripción del clima
+  IconData _weatherIcon = Icons.cloud; // Icono del clima (nube por defecto)
+
+  // Temporizador que se ejecuta cada segundo para actualizar la hora
+  Timer? _timer; // Puede ser nulo antes de iniciar
+
+  // Se ejecuta al insertar el widget en el árbol de widgets
+  @override
+  void initState() {
+    super.initState(); // Llama al initState de la clase padre
+    _updateTime(); // Inicializa la hora actual
+    _startClock(); // Inicia el temporizador para actualizar la hora
+    _fetchWeather(); // Obtiene datos del clima desde la API
+  }
+
+  // Se ejecuta al eliminar el widget de la pantalla
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancela el temporizador para evitar fugas de memoria
+    super.dispose(); // Llama al dispose de la clase padre
+  }
+
+  // Inicia un temporizador que actualiza la hora cada segundo
+  void _startClock() {
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _updateTime(),
+    ); // Ejecuta _updateTime cada 1 segundo
+  }
+
+  // Obtiene la hora actual del sistema y la formatea como HH:mm
+  void _updateTime() {
+    final now = DateTime.now(); // Fecha y hora actuales
+    setState(() {
+      // Actualiza el estado con la nueva hora formateada
+      _currentTime =
+          '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}'; // Formato HH:mm
+    });
+  }
+
+  // Obtiene el clima actual desde la API Open-Meteo para Bucaramanga
+  Future<void> _fetchWeather() async {
+    try {
+      // Coordenadas fijas de Bucaramanga
+      final url =
+          'https://api.open-meteo.com/v1/forecast?latitude=7.1254&longitude=-73.1198&current_weather=true'; // URL de la API
+
+      // Realiza la solicitud HTTP GET
+      final response = await http.get(Uri.parse(url)); // Petición a la API
+
+      // Si la respuesta es exitosa
+      if (response.statusCode == 200) {
+        // Decodifica la respuesta JSON
+        final data = json.decode(response.body); // Convierte JSON a Map
+
+        // Extrae temperatura y código de clima
+        final temp =
+            data['current_weather']['temperature']; // Temperatura actual
+        final weatherCode =
+            data['current_weather']['weathercode']; // Código de clima
+
+        // Mapea el código a descripción e ícono
+        final weatherInfo = _mapWeatherCodeToInfo(
+          weatherCode,
+        ); // Diccionario con descripción e icono
+
+        // Actualiza el estado con los valores obtenidos
+        setState(() {
+          _temperature = '$temp°C'; // Temperatura en grados
+          _weatherDescription =
+              weatherInfo['description']!; // Texto descriptivo
+          _weatherIcon = weatherInfo['icon']!; // Icono correspondiente
+        });
+      } else {
+        // Si la respuesta falla, asigna valores por defecto
+        setState(() {
+          _temperature = 'N/D'; // No disponible
+          _weatherDescription = 'Desconocido'; // Texto genérico
+        });
+      }
+    } catch (e) {
+      // En caso de error (conexión o parsing)
+      setState(() {
+        _temperature = 'N/D'; // No disponible
+        _weatherDescription = 'Error'; // Texto de error
+      });
+    }
+  }
+
+  // Convierte códigos de Open-Meteo en descripción de clima e ícono visual
+  Map<String, dynamic> _mapWeatherCodeToInfo(int code) {
+    if (code == 0) {
+      return {'description': 'Despejado', 'icon': Icons.wb_sunny}; // Sol
+    } else if ([1, 2, 3].contains(code)) {
+      return {
+        'description': 'Parcialmente nublado',
+        'icon': Icons.cloud_queue,
+      }; // Nubes dispersas
+    } else if ([45, 48].contains(code)) {
+      return {'description': 'Niebla', 'icon': Icons.foggy}; // Niebla
+    } else if ([51, 53, 55].contains(code)) {
+      return {
+        'description': 'Llovizna',
+        'icon': Icons.grain,
+      }; // Llovizna ligera
+    } else if ([61, 63, 65].contains(code)) {
+      return {
+        'description': 'Lluvia',
+        'icon': Icons.beach_access,
+      }; // Lluvia normal
+    } else if ([66, 67].contains(code)) {
+      return {
+        'description': 'Lluvia helada',
+        'icon': Icons.ac_unit,
+      }; // Lluvia congelada
+    } else if ([71, 73, 75].contains(code)) {
+      return {'description': 'Nieve', 'icon': Icons.ac_unit}; // Nieve
+    } else if ([80, 81, 82].contains(code)) {
+      return {'description': 'Aguacero', 'icon': Icons.umbrella}; // Aguacero
+    } else if ([95, 96, 99].contains(code)) {
+      return {
+        'description': 'Tormenta',
+        'icon': Icons.flash_on,
+      }; // Tormenta eléctrica
+    } else {
+      return {
+        'description': 'Desconocido',
+        'icon': Icons.help_outline,
+      }; // Código desconocido
+    }
+  }
+
+  // Construye la interfaz visual del widget
   @override
   Widget build(BuildContext context) {
     return Container(
+      // Fondo principal del área
       decoration: BoxDecoration(
-        image: backgroundImage != null
+        // Si hay imagen de fondo, se muestra
+        image: widget.backgroundImage != null
             ? DecorationImage(
-                image: NetworkImage(backgroundImage!),
-                fit: BoxFit.cover,
+                image: NetworkImage(widget.backgroundImage!), // Imagen de URL
+                fit: BoxFit.cover, // Ajusta la imagen al contenedor
               )
+            : null, // Si no hay imagen, no se aplica
+        // Color de fondo si no hay imagen
+        color: widget.backgroundImage == null
+            ? _hexToColor(widget.backgroundColor) // Convierte hex a Color
             : null,
-        color: backgroundImage == null ? _hexToColor(backgroundColor) : null,
       ),
       child: Container(
+        // Capa semitransparente sobre el fondo
         decoration: BoxDecoration(
-          color: _hexToColor(backgroundColor).withOpacity(0.85),
+          color: _hexToColor(
+            widget.backgroundColor,
+          ).withOpacity(0.85), // Oscurece el fondo
         ),
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        padding: const EdgeInsets.symmetric(
+          vertical: 20,
+          horizontal: 16,
+        ), // Espaciado interno
         child: SafeArea(
           child: Column(
             children: [
-              if (showStatusBar) _buildStatusBar(),
-              if (showStatusBar) const SizedBox(height: 20),
+              // Barra de estado superior
+              if (widget.showStatusBar)
+                _buildStatusBar(), // Solo si showStatusBar = true
+              if (widget.showStatusBar)
+                const SizedBox(height: 20), // Espacio debajo de la barra
+              // Nombre de la ciudad en mayúsculas
               Text(
-                cityName.toUpperCase(),
+                widget.cityName.toUpperCase(), // Convierte a mayúsculas
                 style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
+                  color: Colors.white, // Color del texto
+                  fontSize: 32, // Tamaño del texto
+                  fontWeight: FontWeight.bold, // Negrita
+                  letterSpacing: 2, // Espaciado entre letras
                 ),
               ),
-              const SizedBox(height: 20),
+
+              const SizedBox(height: 20), // Separación vertical
+              // Sección de botones circulares inferiores
               Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                alignment: WrapAlignment.spaceEvenly,
-                children: items.map((item) => _buildIconButton(item)).toList(),
+                spacing: 12, // Espaciado horizontal entre botones
+                runSpacing: 12, // Espaciado vertical si hay varias filas
+                alignment:
+                    WrapAlignment.spaceEvenly, // Distribuye uniformemente
+                children: widget.items
+                    .map(
+                      (item) => _buildIconButton(item),
+                    ) // Construye cada botón
+                    .toList(),
               ),
             ],
           ),
@@ -66,53 +257,91 @@ class AreaInfoBasica extends StatelessWidget {
     );
   }
 
+  // Construye la barra superior con hora, clima y íconos
   Widget _buildStatusBar() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment:
+          MainAxisAlignment.spaceBetween, // Elementos a los extremos
       children: [
-        const Text(
-          '09:23',
-          style: TextStyle(color: Colors.white, fontSize: 14),
+        // Muestra la hora actual o "--:--" si no disponible
+        Text(
+          _currentTime.isEmpty ? '--:--' : _currentTime,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
         ),
+
+        // Sección de la derecha con clima y WiFi/batería
         Row(
-          children: const [
-            Icon(Icons.cloud, color: Colors.white, size: 18),
-            SizedBox(width: 4),
-            Icon(Icons.wifi, color: Colors.white, size: 18),
-            SizedBox(width: 4),
-            Icon(Icons.battery_full, color: Colors.white, size: 18),
+          children: [
+            Icon(
+              _weatherIcon,
+              color: Colors.white,
+              size: 18,
+            ), // Icono del clima
+            const SizedBox(width: 4), // Separación pequeña
+
+            Text(
+              _temperature.isEmpty ? '--°C' : _temperature, // Temperatura
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
+
+            const SizedBox(width: 8),
+
+            Text(
+              _weatherDescription, // Descripción corta del clima
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+
+            const SizedBox(width: 12),
+
+            const Icon(Icons.wifi, color: Colors.white, size: 18), // WiFi
+            const SizedBox(width: 4),
+            const Icon(
+              Icons.battery_full,
+              color: Colors.white,
+              size: 18,
+            ), // Batería
           ],
         ),
       ],
     );
   }
 
+  // Construye cada botón circular con ícono y texto
   Widget _buildIconButton(InfoBasicaItem item) {
     return InkWell(
-      onTap: item.onTap,
+      onTap: item.onTap, // Acción al presionar el botón
       child: SizedBox(
-        width: 60,
+        width: 60, // Ancho fijo
         child: Column(
           children: [
+            // Contenedor circular para el ícono
             Container(
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF2C5F4F), width: 2),
+                color: Colors.white, // Fondo blanco
+                shape: BoxShape.circle, // Forma circular
+                border: Border.all(
+                  color: const Color(0xFF2C5F4F), // Borde verde oscuro
+                  width: 2,
+                ),
               ),
               child: Center(
                 child: item.icon.startsWith('assets/')
-                    ? Image.asset(item.icon, width: 24, height: 24)
+                    ? Image.asset(
+                        item.icon,
+                        width: 24,
+                        height: 24,
+                      ) // Imagen de assets
                     : Icon(
-                        _getIconData(item.icon),
-                        color: const Color(0xFF2C5F4F),
+                        _getIconData(item.icon), // Icono de Flutter
+                        color: const Color(0xFF2C5F4F), // Verde oscuro
                         size: 24,
                       ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 8), // Espacio debajo del ícono
+            // Texto descriptivo debajo del botón
             Text(
               item.label,
               style: const TextStyle(
@@ -120,9 +349,9 @@ class AreaInfoBasica extends StatelessWidget {
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center, // Centrado
+              maxLines: 2, // Máximo dos líneas
+              overflow: TextOverflow.ellipsis, // Cortar si es muy largo
             ),
           ],
         ),
@@ -130,11 +359,15 @@ class AreaInfoBasica extends StatelessWidget {
     );
   }
 
+  // Convierte un color hexadecimal a Color de Flutter
   Color _hexToColor(String hex) {
-    hex = hex.replaceAll('#', '');
-    return Color(int.parse('FF$hex', radix: 16));
+    hex = hex.replaceAll('#', ''); // Quita el símbolo #
+    return Color(
+      int.parse('FF$hex', radix: 16), // Añade opacidad completa y convierte
+    );
   }
 
+  // Devuelve un IconData según el nombre del ícono en el modelo
   IconData _getIconData(String iconName) {
     final iconMap = {
       'info': Icons.info,
@@ -145,6 +378,7 @@ class AreaInfoBasica extends StatelessWidget {
       'hotel': Icons.hotel,
       'transport': Icons.directions_bus,
     };
-    return iconMap[iconName] ?? Icons.help_outline;
+    return iconMap[iconName] ??
+        Icons.help_outline; // Devuelve icono por defecto si no existe
   }
 }

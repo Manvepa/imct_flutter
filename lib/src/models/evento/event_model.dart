@@ -4,7 +4,7 @@
 // obtenido del backend público Node.js + Express.
 // ============================================================
 
-import 'package:imct_flutter/src/api/api_config.dart'; // ✅ Para usar la URL base del backend
+import 'package:imct_flutter/src/api/api_config.dart'; // ✅ Para usar las URLs base
 
 class EventoModel {
   // ------------------------------------------------------------
@@ -38,7 +38,6 @@ class EventoModel {
   // ------------------------------------------------------------
   factory EventoModel.fromJson(Map<String, dynamic> json) {
     // 👇 Si el backend devuelve el evento anidado dentro de la propiedad "evento"
-    // // lo extraemos; de lo contrario, usamos el propio JSON.
     final Map<String, dynamic> eventoData = json.containsKey('evento')
         ? json['evento']
         : json;
@@ -74,19 +73,20 @@ class EventoModel {
   // ------------------------------------------------------------
   // OBTENER URL FINAL DE IMAGEN
   // ------------------------------------------------------------
-  // Construye la URL completa usando la baseUrl del backend
-  // para no depender de IPs locales ni hardcodeadas.
   String getImageUrl() {
     if (imagen != null && imagen!.isNotEmpty) {
+      // Si ya es una URL completa, la devolvemos directamente
       if (imagen!.startsWith('http')) {
-        // Si ya es una URL completa, la devolvemos tal cual.
         return imagen!;
       }
-      // Si es una ruta relativa, la completamos con la URL base del backend
-      return '${ApiConfig.baseUrl}$imagen';
+
+      // 🔗 Unimos la URL base de imágenes con la ruta relativa
+      final cleanBase = ApiConfig.baseUrl.replaceAll(RegExp(r'/$'), '');
+      final cleanImage = imagen!.replaceAll(RegExp(r'^/'), '');
+      return '$cleanBase/$cleanImage';
     }
 
-    // Si no hay imagen, devolvemos una URL genérica o nada
+    // 🖼️ Imagen de respaldo si no hay ninguna
     return 'https://via.placeholder.com/400x300?text=${Uri.encodeComponent(nombre)}';
   }
 }
