@@ -69,10 +69,13 @@ class AreaBanners extends StatelessWidget {
           // Muestra el título del banner en mayúsculas.
           Text(
             banner.title.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20, // Tamaño de letra del título.
               fontWeight: FontWeight.bold, // Estilo negrita.
-              color: Color(0xFF2C5F4F), // Color del texto del título.
+              // 🎨 Si el modelo tiene color de texto, úsalo; si no, usa un color por defecto.
+              color: banner.textColor != null
+                  ? _hexToColor(banner.textColor!)
+                  : const Color(0xFF2C5F4F),
             ),
           ),
           // Espaciado vertical entre el título y la descripción.
@@ -80,10 +83,13 @@ class AreaBanners extends StatelessWidget {
           // Muestra la descripción del banner.
           Text(
             banner.description,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14, // Tamaño del texto descriptivo.
-              color: Colors.black87, // Color del texto.
               height: 1.5, // Altura de línea (espaciado entre líneas).
+              // 🎨 Aplica el color personalizado o un color base por defecto.
+              color: banner.textColor != null
+                  ? _hexToColor(banner.textColor!)
+                  : Colors.black87,
             ),
           ),
           // Espacio entre la descripción y el botón.
@@ -94,20 +100,31 @@ class AreaBanners extends StatelessWidget {
             onPressed: banner.onButtonPressed,
             // Estilo personalizado del botón.
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(
-                0xFF2C5F4F,
-              ), // Color de fondo del botón.
-              foregroundColor: Colors.white, // Color del texto del botón.
+              backgroundColor: const Color(0xFF2C5F4F), // Fondo blanco.
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  8,
-                ), // Bordes redondeados del botón.
+                borderRadius: BorderRadius.circular(8),
+                // Borde decorativo opcional con el color del texto del botón.
+                side: BorderSide(
+                  color: banner.buttonTextColor != null
+                      ? _hexToColor(banner.buttonTextColor!)
+                      : const Color(0xFF2C5F4F),
+                  width: 2,
+                ),
               ),
               // Relleno interno (espaciado) del botón.
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             // Texto que se muestra dentro del botón.
-            child: Text(banner.buttonText),
+            child: Text(
+              banner.buttonText,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                // 🎨 Color del texto del botón leído desde el modelo.
+                color: banner.buttonTextColor != null
+                    ? _hexToColor(banner.buttonTextColor!)
+                    : const Color(0xFF2C5F4F),
+              ),
+            ),
           ),
         ],
       ),

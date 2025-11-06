@@ -70,6 +70,8 @@ class BannerData {
   final String buttonText; // Texto del botón que aparece en el banner
   final String? backgroundImage; // Imagen de fondo opcional del banner
   final String backgroundColor; // Color de fondo del banner (por defecto rojo)
+  final String? textColor;
+  final String? buttonTextColor;
   final void Function()?
   onButtonPressed; // Acción opcional al presionar el botón
 
@@ -80,7 +82,9 @@ class BannerData {
     required this.buttonText,
     this.backgroundImage,
     this.backgroundColor =
-        '#F00F00', // Valor por defecto para el color de fondo
+        '#F0C339', // Valor por defecto para el color de fondo
     this.onButtonPressed,
+    this.textColor,
+    this.buttonTextColor,
   });
 }
