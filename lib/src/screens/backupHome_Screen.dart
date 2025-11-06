@@ -14,8 +14,8 @@ import 'pantallaInicio/area_informacion_central.dart';
 import 'pantallaInicio/area_banners.dart';
 import 'pantallaInicio/area_menus.dart';
 
-// Importamos el modal de detalle del evento
-import '../widgets/evento_detalle_modal.dart';
+// Importamos el nuevo componente separado:
+import '../widgets/evento_detalle_modal.dart'; // <--- Nuevo archivo creado
 
 // ============================================
 // CLASE PRINCIPAL DE LA PANTALLA HOME
@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
-              // 🟩 SECCIÓN 1: Información básica
+              // SECCIÓN 1: Información básica
               AreaInfoBasica(
                 cityName: 'Bucaramanga',
                 backgroundImage:
@@ -100,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 items: _getInfoBasicaItems(),
               ),
 
-              // 🟩 SECCIÓN 2: Menú principal
+              // SECCIÓN 2: Menú principal
               AreaMenu(
                 menuItems: _getMenuItems(),
                 initialIndex: selectedMenuIndex,
@@ -111,20 +111,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 selectedColor: '#085029',
               ),
 
-              // 🟩 SECCIÓN 3: Carrusel de información central (Top 10 eventos)
+              // SECCIÓN 3: Información central
               _buildAreaInformacionCentral(),
 
-              // 🟩 SECCIÓN 4: “¿Sabías que?” (ANTES de los iconos de hoteles)
+              // SECCIÓN 4: Banners
               AreaBanners(banners: _getBannerData()),
 
-              // 🟩 SECCIÓN 5: Íconos de Hoteles y Restaurantes
-              AreaMenus(
-                title: 'Recomendados',
-                menuItems: _getCategoryItems(),
-                columns: 2,
-              ),
-
-              // 🟩 SECCIÓN 6: “Explora más” (Relax, Ecoturismo...)
+              // SECCIÓN 5: Menús inferiores
               AreaMenus(
                 title: 'Explora más',
                 menuItems: _getBottomMenuItems(),
@@ -173,11 +166,10 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Muestra el carrusel de eventos (Top 10)
     return AreaInformacionCentral(
       carouselItems: _getCarouselItems(),
-      categories: const [], // En esta sección no mostramos categorías
-      categoryColumns: 0,
+      categories: _getCategoryItems(),
+      categoryColumns: 4,
     );
   }
 
@@ -240,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<CategoryItem> _getCategoryItems() => [
     CategoryItem(
-      icon: 'hotel',
+      icon: 'spa',
       label: 'Hoteles',
       onTap: () => _navigateTo('Hoteles'),
     ),
@@ -254,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<BannerData> _getBannerData() => [
     BannerData(
       title: '¿Sabías qué?',
-      description: 'Bucaramanga tiene más de 72 parques 🌳',
+      description: 'Bucaramanga tiene más de 72 parques.',
       buttonText: 'Ver más',
       backgroundColor: '#89C53F',
       onButtonPressed: () => _navigateTo('Info Parques'),
@@ -266,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
     CategoryItem(
       icon: 'park',
       label: 'Ecoturismo',
-      onTap: () => _navigateTo('Ecoturismo'),
+      onTap: () => _navigateTo('Eco'),
     ),
   ];
 
