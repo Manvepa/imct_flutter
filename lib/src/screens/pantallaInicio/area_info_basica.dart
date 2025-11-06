@@ -212,7 +212,7 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
         decoration: BoxDecoration(
           color: _hexToColor(
             widget.backgroundColor,
-          ).withOpacity(0.85), // Oscurece el fondo
+          ).withOpacity(0.50), // Oscurece el fondo
         ),
         padding: const EdgeInsets.symmetric(
           vertical: 20,

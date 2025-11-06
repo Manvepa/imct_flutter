@@ -32,7 +32,7 @@ class AreaMenu extends StatefulWidget {
     this.onItemTap, // Este es opcional (puede ser null).
     this.initialIndex = 0, // Valor predeterminado del índice inicial.
     this.backgroundColor = '#2C5F4F', // Color de fondo por defecto.
-    this.selectedColor = '#FFC107', // Color de selección por defecto.
+    this.selectedColor = '#085029', // Color de selección por defecto.
   }) : super(
          key: key,
        ); // Llama al constructor de la superclase (StatefulWidget).
@@ -132,7 +132,7 @@ class _AreaMenuState extends State<AreaMenu> {
           child: Text(
             item.text.toUpperCase(), // Muestra el texto en mayúsculas.
             style: TextStyle(
-              color: Colors.white, // Texto blanco.
+              color: const Color(0xFF085029), // Texto blanco.
               fontSize: 12, // Tamaño de fuente.
               fontWeight: isSelected
                   ? FontWeight.bold

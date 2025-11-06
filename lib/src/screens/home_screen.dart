@@ -142,8 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     selectedMenuIndex = index;
                   });
                 },
-                backgroundColor: '#2C5F4F', // Color de fondo del menú.
-                selectedColor: '#FFC107', // Color de ítem seleccionado.
+                backgroundColor: '#89C53F', // Color de fondo del menú.
+                selectedColor: '#085029', // Color de ítem seleccionado.
               ),
 
               // ===============================
@@ -500,7 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
       description:
           'Bucaramanga tiene más de 72 parques dentro de su área metropolitana.',
       buttonText: 'Ver más',
-      backgroundColor: '#D4E157',
+      backgroundColor: '#89C53F',
       onButtonPressed: () => _navigateTo('Info Parques'),
     ),
   ];

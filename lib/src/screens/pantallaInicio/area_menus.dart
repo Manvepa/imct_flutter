@@ -2,70 +2,75 @@
 // ARCHIVO: lib/src/screens/pantallaInicio/area_menus.dart
 // ============================================
 
-// Importa el paquete principal de Flutter para crear widgets.
+// Importa el paquete principal de Flutter para crear widgets visuales.
 import 'package:flutter/material.dart';
 
-// Importa los modelos personalizados de la aplicación (CategoryItem, etc.).
+// Importa los modelos personalizados (CategoryItem, etc.)
 import '../../models/app_models.dart';
 
-// Define un widget sin estado (StatelessWidget) llamado AreaMenus.
+// ===============================================================
+// 🟢 WIDGET: AreaMenus
+// Representa el bloque con íconos y textos como “Experiencias”, “Transporte”...
+// ===============================================================
 class AreaMenus extends StatelessWidget {
-  // Lista de elementos del menú, cada uno representado por un CategoryItem.
+  // Lista de ítems que se mostrarán (cada uno con ícono, texto y acción).
   final List<CategoryItem> menuItems;
 
-  // Título opcional que se mostrará encima del grid.
+  // Título opcional que se muestra encima del grid.
   final String? title;
 
-  // Número de columnas del grid, por defecto 3.
+  // Número de columnas que tendrá el grid (por defecto, 3).
   final int columns;
 
-  // Constructor del widget con parámetros requeridos y opcionales.
+  // Constructor del widget con sus parámetros.
   const AreaMenus({
     Key? key,
-    required this.menuItems, // Lista obligatoria de ítems.
-    this.title, // Título opcional.
-    this.columns = 3, // Valor por defecto para columnas.
+    required this.menuItems, // Lista de ítems (requerida)
+    this.title, // Título (opcional)
+    this.columns = 3, // Número de columnas por defecto
   }) : super(key: key);
 
-  // Método principal que construye la interfaz del widget.
+  // ================================================================
+  // MÉTODO PRINCIPAL DE CONSTRUCCIÓN
+  // ================================================================
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16), // Margen interno general.
+      padding: const EdgeInsets.all(16), // Margen interno alrededor del grid.
       child: Column(
         crossAxisAlignment:
-            CrossAxisAlignment.start, // Alinea el contenido a la izquierda.
+            CrossAxisAlignment.start, // Alinea los elementos a la izquierda.
         children: [
-          // Si se proporciona un título, lo muestra con un estilo específico.
+          // Si el título existe, se muestra arriba del grid.
           if (title != null)
             Padding(
-              padding: const EdgeInsets.only(
-                bottom: 16,
-              ), // Espacio debajo del título.
+              padding: const EdgeInsets.only(bottom: 16),
               child: Text(
-                title!, // Texto del título.
+                title!,
                 style: const TextStyle(
-                  fontSize: 20, // Tamaño del texto.
-                  fontWeight: FontWeight.bold, // Texto en negrita.
-                  color: Color(0xFF2C5F4F), // Color verde oscuro.
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2C5F4F), // Verde oscuro para el título.
                 ),
               ),
             ),
 
-          // Construye un grid de elementos de menú.
+          // ========================================================
+          // GRID DE ÍCONOS (cada uno construido con _buildMenuItem)
+          // ========================================================
           GridView.builder(
-            shrinkWrap: true, // Permite usar el GridView dentro de un Column.
+            shrinkWrap: true, // Permite usar el grid dentro de un Column.
             physics:
-                const NeverScrollableScrollPhysics(), // Evita scroll interno (usa el del padre).
+                const NeverScrollableScrollPhysics(), // Evita scroll interno.
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns, // Número de columnas definido.
-              crossAxisSpacing: 16, // Espacio horizontal entre los elementos.
-              mainAxisSpacing: 16, // Espacio vertical entre los elementos.
-              childAspectRatio: 1.2, // Relación ancho/alto de cada celda.
+              crossAxisCount: columns, // Número de columnas definidas.
+              crossAxisSpacing: 16, // Espacio horizontal entre celdas.
+              mainAxisSpacing: 16, // Espacio vertical entre celdas.
+              childAspectRatio: 1.2, // Relación ancho/alto.
             ),
-            itemCount: menuItems.length, // Número total de ítems en el menú.
+            itemCount: menuItems.length, // Cantidad total de ítems.
             itemBuilder: (context, index) {
-              // Llama al método privado que construye cada ítem.
+              // Llama al método que construye cada elemento individual.
               return _buildMenuItem(menuItems[index]);
             },
           ),
@@ -74,53 +79,69 @@ class AreaMenus extends StatelessWidget {
     );
   }
 
-  // Método privado que construye un ítem individual del menú.
+  // ================================================================
+  // 🧩 MÉTODO PRIVADO: _buildMenuItem
+  // Construye cada tarjeta individual del menú.
+  // ================================================================
   Widget _buildMenuItem(CategoryItem item) {
     return InkWell(
-      onTap: item.onTap, // Acción al tocar el ítem (definida en el modelo).
+      onTap: item.onTap, // Acción al tocar el ítem (definida externamente).
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white, // Fondo blanco.
-          borderRadius: BorderRadius.circular(12), // Bordes redondeados.
+          // ✅ NUEVO COLOR DE FONDO
+          color: const Color(0xFF89C53F), // Verde claro (nuevo color)
+          borderRadius: BorderRadius.circular(12), // Bordes redondeados
           border: Border.all(
-            color: const Color(0xFF2C5F4F),
+            color: const Color(0xFF6E9F34), // Verde un poco más oscuro (borde)
             width: 1,
-          ), // Borde verde oscuro.
+          ),
           boxShadow: const [
-            // Sombra ligera debajo del ítem.
+            // Sombra ligera para profundidad.
             BoxShadow(
-              color: Colors.black12,
+              color: Colors.black26,
               blurRadius: 4,
               offset: Offset(0, 2),
             ),
           ],
         ),
+
+        // Contenido interno (ícono + texto)
         child: Column(
           mainAxisAlignment:
-              MainAxisAlignment.center, // Centra el contenido verticalmente.
+              MainAxisAlignment.center, // Centra verticalmente el contenido.
           children: [
-            // Muestra el ícono del ítem:
-            // Si el ícono proviene de los assets, carga una imagen.
+            // ====================================
+            // ÍCONO DEL ÍTEM
+            // ====================================
             item.icon.startsWith('assets/')
-                ? Image.asset(item.icon, width: 40, height: 40)
-                // Si no, utiliza un ícono de Flutter según el nombre.
+                // Si el ícono viene de assets → muestra la imagen.
+                ? Image.asset(
+                    item.icon,
+                    width: 40,
+                    height: 40,
+                    color: Colors.white,
+                  )
+                // Si no, usa un ícono del sistema de Flutter.
                 : Icon(
                     _getIconData(item.icon),
-                    color: const Color(0xFF2C5F4F),
+                    color: Colors.white, // ✅ Ícono blanco (contraste)
                     size: 40,
                   ),
+
             const SizedBox(height: 8), // Espacio entre ícono y texto.
-            // Texto descriptivo del ítem.
+            // ====================================
+            // TEXTO DESCRIPTIVO DEL ÍTEM
+            // ====================================
             Text(
-              item.label, // Etiqueta o nombre del ítem.
+              item.label, // Texto que viene del modelo.
               style: const TextStyle(
                 fontSize: 12,
-                color: Color(0xFF2C5F4F),
+                color: Colors.white, // ✅ Texto blanco
                 fontWeight: FontWeight.w600, // Seminegrita.
               ),
-              textAlign: TextAlign.center, // Centra el texto.
-              maxLines: 2, // Máximo de dos líneas.
-              overflow: TextOverflow.ellipsis, // Corta con "..." si es largo.
+              textAlign: TextAlign.center, // Centrado horizontal.
+              maxLines: 2, // Máximo 2 líneas.
+              overflow: TextOverflow.ellipsis, // Corta con “…” si es largo.
             ),
           ],
         ),
@@ -128,9 +149,11 @@ class AreaMenus extends StatelessWidget {
     );
   }
 
-  // Método auxiliar que convierte un nombre de ícono en un IconData de Flutter.
+  // ================================================================
+  // 🔧 MÉTODO AUXILIAR: _getIconData
+  // Convierte el nombre del ícono en un objeto IconData de Flutter.
+  // ================================================================
   IconData _getIconData(String iconName) {
-    // Mapa que relaciona nombres de iconos con los íconos de Flutter.
     final iconMap = {
       'spa': Icons.spa,
       'restaurant': Icons.restaurant,
@@ -142,7 +165,7 @@ class AreaMenus extends StatelessWidget {
       'nightlife': Icons.nightlife,
     };
 
-    // Retorna el ícono correspondiente o uno de ayuda si no existe.
+    // Si no encuentra coincidencia, usa un ícono genérico.
     return iconMap[iconName] ?? Icons.help_outline;
   }
 }
