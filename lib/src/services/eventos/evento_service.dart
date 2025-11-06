@@ -16,6 +16,9 @@ import '../../api/dio_client.dart'; // Cliente centralizado de Dio (configura he
 import '../../api/endpoints.dart'; // Contiene las URLs de los endpoints del backend.
 import '../../models/evento/event_model.dart'; // Modelo que representa un evento.
 
+// Importacion para mostrar logs en consola usando logger
+import 'package:logger/logger.dart';
+
 // ============================================================
 // 🔹 CLASE: EventoService
 // Encargada de gestionar todas las operaciones relacionadas con eventos.
@@ -24,6 +27,16 @@ class EventoService {
   // Instancia de Dio obtenida desde un cliente centralizado (singleton).
   final Dio _dio = DioClient.instance;
 
+  // Metodo para mostrar logs usando logger
+  static final _logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 0,
+      colors: true,
+      printEmojis: true,
+      lineLength: 80,
+    ),
+  );
+
   // ============================================================
   // 🔸 MÉTODO: Obtener todos los eventos públicos
   // Descripción: Obtiene la lista de eventos desde el backend, y en caso
@@ -31,12 +44,12 @@ class EventoService {
   // ============================================================
   Future<List<EventoModel>> getPublicEventos() async {
     try {
-      print('📡 Solicitando lista de eventos públicos...');
+      _logger.i('📡 Solicitando lista de eventos públicos...');
 
       // 🚀 Petición HTTP GET al endpoint público de eventos.
       final response = await _dio.get(Endpoints.eventos);
 
-      print('📬 Código de respuesta: ${response.statusCode}');
+      _logger.i('📬 Código de respuesta: ${response.statusCode}');
 
       // Si la respuesta del servidor fue exitosa (HTTP 200)
       if (response.statusCode == 200) {
@@ -48,7 +61,7 @@ class EventoService {
           // Extraemos la lista de eventos.
           final List<dynamic> listaEventos = data['eventos'];
 
-          print(
+          _logger.i(
             '✅ Se recibieron ${listaEventos.length} eventos desde el backend',
           );
 
@@ -59,24 +72,24 @@ class EventoService {
 
           // 📸 Log de depuración: mostramos las URLs de las imágenes (Cloudinary).
           for (var e in eventos) {
-            print('🖼️ Imagen evento (Cloudinary): ${e.imagen}');
+            _logger.i('🖼️ Imagen evento (Cloudinary): ${e.imagen}');
           }
 
           // 💾 Guardamos los eventos en caché local para modo offline.
           await _guardarEventosEnCache('public_eventos', eventos);
-          print('💾 Eventos públicos guardados en caché correctamente');
+          _logger.i('💾 Eventos públicos guardados en caché correctamente');
 
           // Retornamos la lista de eventos.
           return eventos;
         } else {
           // Si la respuesta no tiene el campo esperado "eventos".
-          print('⚠️ Respuesta sin campo "eventos", usando caché local...');
+          _logger.w('⚠️ Respuesta sin campo "eventos", usando caché local...');
           return await _obtenerEventosDesdeCache('public_eventos');
         }
       }
 
       // Si el código HTTP no es 200, se intenta cargar desde caché.
-      print(
+      _logger.w(
         '⚠️ Código HTTP inesperado (${response.statusCode}), usando caché...',
       );
       return await _obtenerEventosDesdeCache('public_eventos');
@@ -86,12 +99,12 @@ class EventoService {
     // ============================================================
     on DioException catch (e) {
       // Errores de red: conexión fallida, timeout, etc.
-      print('❌ Error de red: ${e.message}');
-      print('📴 Mostrando datos en caché (modo offline)...');
+      _logger.w('❌ Error de red: ${e.message}');
+      _logger.i('📴 Mostrando datos en caché (modo offline)...');
       return await _obtenerEventosDesdeCache('public_eventos');
     } catch (e) {
       // Errores inesperados (parseo, tipo de dato, etc.)
-      print('❌ Error inesperado: $e');
+      _logger.w('❌ Error inesperado: $e');
       return await _obtenerEventosDesdeCache('public_eventos');
     }
   }
@@ -103,7 +116,7 @@ class EventoService {
   // ============================================================
   Future<List<EventoModel>> getTop10Eventos() async {
     try {
-      print('📡 Solicitando Top 10 eventos...');
+      _logger.i('📡 Solicitando Top 10 eventos...');
 
       // Realiza la petición HTTP al endpoint de Top10.
       final response = await _dio.get(Endpoints.eventosTop10);
@@ -114,7 +127,7 @@ class EventoService {
 
         // En este caso, el backend devuelve una lista directa.
         if (data is List) {
-          print('✅ Se recibieron ${data.length} eventos del Top 10');
+          _logger.i('✅ Se recibieron ${data.length} eventos del Top 10');
 
           // Convertimos cada ítem del JSON en un EventoModel.
           final eventos = data
@@ -123,12 +136,12 @@ class EventoService {
 
           // Imprimimos las URLs de las imágenes para depuración.
           for (var e in eventos) {
-            print('🏆 Imagen evento (Top10): ${e.imagen}');
+            _logger.i('🏆 Imagen evento (Top10): ${e.imagen}');
           }
 
           // Guardamos en caché local.
           await _guardarEventosEnCache('top10_eventos', eventos);
-          print('💾 Top 10 guardado en caché correctamente');
+          _logger.i('💾 Top 10 guardado en caché correctamente');
 
           // Retornamos la lista final.
           return eventos;
@@ -136,16 +149,16 @@ class EventoService {
       }
 
       // Si no hubo éxito o el formato no es el esperado, usamos caché.
-      print('⚠️ Respuesta inesperada del servidor, usando caché...');
+      _logger.w('⚠️ Respuesta inesperada del servidor, usando caché...');
       return await _obtenerEventosDesdeCache('top10_eventos');
     } on DioException catch (e) {
       // Manejo de error de red (sin conexión, tiempo agotado, etc.)
-      print('❌ Error de red (Top10): ${e.message}');
-      print('📴 Mostrando Top10 desde caché...');
+      _logger.w('❌ Error de red (Top10): ${e.message}');
+      _logger.i('📴 Mostrando Top10 desde caché...');
       return await _obtenerEventosDesdeCache('top10_eventos');
     } catch (e) {
       // Manejo de error general.
-      print('❌ Error inesperado en Top10: $e');
+      _logger.w('❌ Error inesperado en Top10: $e');
       return await _obtenerEventosDesdeCache('top10_eventos');
     }
   }
@@ -190,15 +203,15 @@ class EventoService {
 
       // Mostramos en consola las imágenes cargadas desde caché.
       for (var e in eventos) {
-        print('🗂️ Imagen evento (cache): ${e.imagen}');
+        _logger.i('🗂️ Imagen evento (cache): ${e.imagen}');
       }
 
-      print('📂 ${eventos.length} eventos cargados desde caché');
+      _logger.i('📂 ${eventos.length} eventos cargados desde caché');
       return eventos;
     }
 
     // Si no hay datos guardados, devolvemos una lista vacía.
-    print('⚠️ No hay datos guardados en caché para "$key"');
+    _logger.w('⚠️ No hay datos guardados en caché para "$key"');
     return [];
   }
 }

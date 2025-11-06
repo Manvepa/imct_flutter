@@ -39,13 +39,13 @@ class AreaInfoBasica extends StatefulWidget {
 
   // Constructor con parámetros requeridos y opcionales
   const AreaInfoBasica({
-    Key? key,
-    required this.cityName, // Ciudad obligatoria
-    this.backgroundImage, // Imagen opcional
-    this.backgroundColor = '#2C5F4F', // Verde oscuro por defecto
-    required this.items, // Lista de botones obligatoria
-    this.showStatusBar = true, // Barra de estado visible por defecto
-  }) : super(key: key);
+    super.key,
+    required this.cityName,
+    this.backgroundImage,
+    this.backgroundColor = '#2C5F4F',
+    required this.items,
+    this.showStatusBar = true,
+  });
 
   // Crea el estado correspondiente a este StatefulWidget
   @override
@@ -212,7 +212,7 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
         decoration: BoxDecoration(
           color: _hexToColor(
             widget.backgroundColor,
-          ).withOpacity(0.50), // Oscurece el fondo
+          ).withValues(alpha: 0.50), // Oscurece el fondo
         ),
         padding: const EdgeInsets.symmetric(
           vertical: 20,

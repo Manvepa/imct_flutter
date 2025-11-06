@@ -3,6 +3,7 @@
 
 import 'package:dio/dio.dart';
 import 'api_config.dart';
+import 'package:logger/logger.dart';
 
 class DioClient {
   // 🔧 Se crea una única instancia de Dio (patrón Singleton)
@@ -23,23 +24,33 @@ class DioClient {
   // Getter público para acceder a la instancia configurada
   static Dio get instance => _dio;
 
+  // 🔥 Instancia global del logger
+  static final _logger = Logger(
+    printer: PrettyPrinter(
+      methodCount: 0,
+      colors: true,
+      printEmojis: true,
+      lineLength: 80,
+    ),
+  );
+
   // Método para inicializar interceptores globales (logs, errores, etc.)
   static void initializeInterceptors() {
     _dio.interceptors.add(
       InterceptorsWrapper(
         // Se ejecuta antes de enviar la petición
         onRequest: (options, handler) {
-          print('🚀 Enviando petición a: ${options.uri}');
+          _logger.i('🚀 Enviando petición a: ${options.uri}');
           return handler.next(options);
         },
         // Se ejecuta cuando llega la respuesta del servidor
         onResponse: (response, handler) {
-          print('✅ Respuesta recibida: ${response.statusCode}');
+          _logger.d('✅ Respuesta recibida: ${response.statusCode}');
           return handler.next(response);
         },
         // Se ejecuta si ocurre un error en la petición
         onError: (DioException e, handler) {
-          print('❌ Error en la petición: ${e.message}');
+          _logger.e('❌ Error en la petición: ${e.message}');
           return handler.next(e);
         },
       ),

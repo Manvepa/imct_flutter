@@ -14,7 +14,7 @@ class AreaBanners extends StatelessWidget {
   final List<BannerData> banners;
 
   // Constructor del widget que recibe la lista de banners como parámetro requerido.
-  const AreaBanners({Key? key, required this.banners}) : super(key: key);
+  const AreaBanners({super.key, required this.banners});
 
   // Método que construye la interfaz de usuario del widget.
   @override
@@ -50,7 +50,7 @@ class AreaBanners extends StatelessWidget {
                 fit: BoxFit.cover,
                 // Aplica un filtro de color oscuro sobre la imagen.
                 colorFilter: ColorFilter.mode(
-                  _hexToColor(banner.backgroundColor).withOpacity(0.9),
+                  _hexToColor(banner.backgroundColor).withValues(alpha: 0.9),
                   BlendMode.darken,
                 ),
               )

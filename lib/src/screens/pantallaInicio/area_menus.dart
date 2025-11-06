@@ -24,11 +24,11 @@ class AreaMenus extends StatelessWidget {
 
   // Constructor del widget con sus parámetros.
   const AreaMenus({
-    Key? key,
+    super.key,
     required this.menuItems, // Lista de ítems (requerida)
     this.title, // Título (opcional)
     this.columns = 3, // Número de columnas por defecto
-  }) : super(key: key);
+  });
 
   // ================================================================
   // MÉTODO PRINCIPAL DE CONSTRUCCIÓN

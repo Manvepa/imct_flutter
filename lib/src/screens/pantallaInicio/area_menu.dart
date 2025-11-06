@@ -27,15 +27,13 @@ class AreaMenu extends StatefulWidget {
 
   // Constructor del widget AreaMenu, que recibe parámetros requeridos y opcionales.
   const AreaMenu({
-    Key? key,
+    super.key,
     required this.menuItems, // Este parámetro es obligatorio.
     this.onItemTap, // Este es opcional (puede ser null).
     this.initialIndex = 0, // Valor predeterminado del índice inicial.
     this.backgroundColor = '#2C5F4F', // Color de fondo por defecto.
     this.selectedColor = '#085029', // Color de selección por defecto.
-  }) : super(
-         key: key,
-       ); // Llama al constructor de la superclase (StatefulWidget).
+  }); // Llama al constructor de la superclase (StatefulWidget).
 
   // Crea el estado asociado a este widget.
   @override

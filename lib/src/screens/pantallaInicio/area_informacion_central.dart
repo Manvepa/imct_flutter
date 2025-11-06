@@ -33,14 +33,14 @@ class AreaInformacionCentral extends StatelessWidget {
 
   // Constructor del widget, con parámetros opcionales y valor por defecto en las columnas.
   const AreaInformacionCentral({
-    Key? key,
+    super.key,
     this.carouselItems,
     this.topListItems,
     this.topListTitle,
     this.topListSubtitle,
     this.categories,
     this.categoryColumns = 4,
-  }) : super(key: key);
+  });
 
   // Método que construye el árbol de widgets principal.
   @override
@@ -130,7 +130,7 @@ class AreaInformacionCentral extends StatelessWidget {
                                 end: Alignment.bottomCenter,
                                 colors: [
                                   Colors.transparent,
-                                  Colors.black.withOpacity(0.7),
+                                  Colors.black.withValues(alpha: 0.7),
                                 ],
                               ),
                             ),
