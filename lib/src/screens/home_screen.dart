@@ -243,32 +243,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Si la carga fue exitosa, muestra los datos en el área central.
     return AreaInformacionCentral(
-      carouselItems: _getCarouselItems(), // Imágenes del carrusel.
-      topListItems: _convertirEventosATopList(), // Lista Top 10 de eventos.
-      topListTitle: 'Top 10 Eventos', // Título de la lista superior.
-      topListSubtitle: 'No te los pierdas', // Subtítulo.
-      categories: _getCategoryItems(), // Categorías generales.
-      categoryColumns: 4, // Número de columnas para el grid.
+      carouselItems: _getCarouselItems(), // Carrusel dinámico con eventos
+      categories: _getCategoryItems(), // Categorías debajo del carrusel
+      categoryColumns: 4, // Número de columnas para el grid
     );
-  }
-
-  // ============================================
-  // MÉTODO: Convierte los eventos a ítems visuales
-  // ============================================
-  List<TopListItem> _convertirEventosATopList() {
-    // Usa la lista de eventos y genera ítems numerados.
-    return _eventosTop10.asMap().entries.map((entry) {
-      final index = entry.key; // Índice del evento.
-      final evento = entry.value; // Evento actual.
-
-      return TopListItem(
-        imageUrl: evento.getImageUrl(), // Imagen del evento.
-        number: '${index + 1}', // Número de ranking.
-        title: evento.nombre, // Nombre del evento.
-        subtitle: evento.ubicacion, // Ubicación breve.
-        onTap: () => _verDetalleEvento(evento), // Acción al tocar.
-      );
-    }).toList();
   }
 
   // ============================================
@@ -476,22 +454,20 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   // Elementos para el carrusel principal.
-  List<CarouselItem> _getCarouselItems() => [
-    CarouselItem(
-      imageUrl:
-          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
-      title: 'Parques Naturales',
-      subtitle: 'Descubre la naturaleza',
-      onTap: () => _navigateTo('Parques'),
-    ),
-    CarouselItem(
-      imageUrl:
-          'https://images.unsplash.com/photo-1533837956061-74d2ca35d1c7?w=800',
-      title: 'Gastronomía Local',
-      subtitle: 'Sabores únicos',
-      onTap: () => _navigateTo('Gastronomía'),
-    ),
-  ];
+  List<CarouselItem> _getCarouselItems() {
+    // Si no hay eventos cargados, devuelve un carrusel vacío.
+    if (_eventosTop10.isEmpty) return [];
+
+    // Convierte cada evento en un CarouselItem.
+    return _eventosTop10.map((evento) {
+      return CarouselItem(
+        imageUrl: evento.getImageUrl(), // Imagen del evento
+        title: evento.nombre, // Nombre del evento como título
+        subtitle: evento.ubicacion ?? '', // Ubicación como subtítulo, si existe
+        onTap: () => _verDetalleEvento(evento), // Al tocar abre detalle
+      );
+    }).toList();
+  }
 
   // Categorías de la sección central.
   List<CategoryItem> _getCategoryItems() => [
