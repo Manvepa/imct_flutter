@@ -16,7 +16,8 @@ import 'pantallaInicio/area_info_basica.dart';
 import 'pantallaInicio/area_menu.dart';
 import 'pantallaInicio/area_informacion_central.dart';
 import 'pantallaInicio/area_banners.dart';
-import 'pantallaInicio/area_menus.dart';
+import 'pantallaInicio/area_sabia_que.dart';
+import 'pantallaInicio/area_footer.dart';
 
 // Importamos el modal de detalle del evento
 import '../widgets/evento_detalle_modal.dart';
@@ -105,8 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
               // 🟩 SECCIÓN 1: Información básica (hora, clima, ciudad, íconos)
               AreaInfoBasica(
                 cityName: 'Bucaramanga',
-                backgroundImage:
-                    'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=800',
                 backgroundColor: '#2C5F4F',
                 showStatusBar: true,
                 items: _getInfoBasicaItems(),
@@ -130,39 +129,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(
                   vertical: 20,
                   horizontal: 16,
-                ), // Espaciado interno
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 🏷️ Título personalizado con salto de línea visual
                     Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 12,
-                      ), // Espacio debajo del título
+                      padding: const EdgeInsets.only(bottom: 12),
                       child: RichText(
                         text: TextSpan(
                           children: [
-                            // 🔹 Primera línea: "Top 10 para"
                             const TextSpan(
                               text: 'Top 10 para\n',
                               style: TextStyle(
-                                color: Colors.white, // 🎨 Blanco puro
+                                color: Colors.white,
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                height: 1.2, // Espaciado vertical
+                                height: 1.2,
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            // 🔹 Segunda línea: "en familia"
                             WidgetSpan(
                               child: Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 70,
-                                ), // 👈 Desplazamiento hacia la derecha
+                                padding: const EdgeInsets.only(left: 70),
                                 child: Text(
                                   'en familia',
                                   style: const TextStyle(
-                                    color: Color(0xFF89C53F), // 🎨 Verde claro
+                                    color: Color(0xFF89C53F),
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
                                     height: 1.2,
@@ -175,6 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
+
                     // 🌀 Carrusel de eventos (mantiene la funcionalidad existente)
                     _buildAreaInformacionCentral(),
                   ],
@@ -182,62 +176,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               // 🟩 SECCIÓN 4: NUEVA SECCIÓN “¿SABÍAS QUÉ?”
-              // 🟩 SECCIÓN 3.1: ¿SABÍAS QUÉ? (Nueva sección de ancho completo)
-              Container(
-                width: double.infinity, // ✅ Ocupa todo el ancho de la pantalla
-                color: const Color(0xFF89C53F), // Fondo verde (#89C53F)
-                padding: const EdgeInsets.symmetric(
-                  vertical: 24,
-                  horizontal: 16,
-                ), // Espaciado interno
-                // Contenido del bloque: texto en columna
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start, // Alinear texto a la izquierda
-                  children: const [
-                    // Subtítulo "¿SABÍAS QUÉ?"
-                    Text(
-                      '¿SABÍAS QUÉ?',
-                      style: TextStyle(
-                        color: Color(
-                          0xFF085029,
-                        ), // Color del subtítulo (#085029)
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    SizedBox(height: 10), // Espacio entre subtítulo y texto
-                    // Texto descriptivo
-                    Text(
-                      'Bucaramanga tiene más de 72 parques dentro de su área metropolitana, '
-                      'lo que la hace una ciudad de destacado desarrollo urbano sostenible y un paisaje verde.',
-                      style: TextStyle(
-                        color: Color(0xFF08522F), // Color del texto (#08522F)
-                        fontSize: 14,
-                        height: 1.5, // Espaciado entre líneas
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const AreaSabiaQue(),
 
               // 🟩 SECCIÓN 5: Banner “DESCUBRE”
               AreaBanners(banners: _getBannerData()),
 
-              // 🟩 SECCIÓN 6: Íconos de Hoteles y Restaurantes
-              AreaMenus(
-                title: 'Recomendados',
-                menuItems: _getCategoryItems(),
-                columns: 2,
-              ),
-
-              // 🟩 SECCIÓN 7: “Explora más” (Relax, Ecoturismo...)
-              AreaMenus(
-                title: 'Explora más',
-                menuItems: _getBottomMenuItems(),
-                columns: 3,
-              ),
+              // 🟩 SECCIÓN 6: FOOTER INSTITUCIONAL
+              const AreaFooter(),
 
               const SizedBox(height: 20),
             ],
@@ -281,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Si todo está correcto, mostramos el carrusel
+    // ✅ Si todo está correcto, mostramos el carrusel
     return AreaInformacionCentral(
       carouselItems: _getCarouselItems(),
       categories: const [],
@@ -345,20 +290,6 @@ class _HomeScreenState extends State<HomeScreen> {
       )
       .toList();
 
-  List<CategoryItem> _getCategoryItems() => [
-    CategoryItem(
-      icon: 'hotel',
-      label: 'Hoteles',
-      onTap: () => _navigateTo('Hoteles'),
-    ),
-    CategoryItem(
-      icon: 'restaurant',
-      label: 'Restaurantes',
-      onTap: () => _navigateTo('Restaurantes'),
-    ),
-  ];
-
-  // Banner con el contenido “DESCUBRE”
   List<BannerData> _getBannerData() => [
     BannerData(
       title: 'DESCUBRE',
@@ -369,15 +300,6 @@ class _HomeScreenState extends State<HomeScreen> {
       textColor: '#08522B',
       buttonTextColor: '#F0C339',
       onButtonPressed: () => _navigateTo('Info Parques'),
-    ),
-  ];
-
-  List<CategoryItem> _getBottomMenuItems() => [
-    CategoryItem(icon: 'spa', label: 'Relax', onTap: () => _navigateTo('Spa')),
-    CategoryItem(
-      icon: 'park',
-      label: 'Ecoturismo',
-      onTap: () => _navigateTo('Ecoturismo'),
     ),
   ];
 

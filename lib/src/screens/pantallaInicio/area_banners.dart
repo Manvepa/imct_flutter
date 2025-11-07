@@ -1,128 +1,140 @@
 // ============================================
 // ARCHIVO: lib/src/screens/pantallaInicio/area_banners.dart
+// Descripción: Sección de banners tipo “DESCUBRE”
+// con diseño dividido en dos trapecios (información e imagen).
+// El trapecio de información ocupa más espacio que el de fondo.
 // ============================================
 
-// Importa el paquete principal de Flutter para usar widgets y materiales visuales.
 import 'package:flutter/material.dart';
+import '../../models/app_models.dart'; // Importamos el modelo BannerData
 
-// Importa el archivo de modelos donde se define la clase BannerData.
-import '../../models/app_models.dart';
-
-// Define un widget sin estado (StatelessWidget) llamado AreaBanners.
+// ============================================
+// WIDGET PRINCIPAL: AreaBanners
+// ============================================
 class AreaBanners extends StatelessWidget {
-  // Lista de objetos BannerData que contendrá la información de los banners.
+  // Lista de banners que se mostrarán
   final List<BannerData> banners;
 
-  // Constructor del widget que recibe la lista de banners como parámetro requerido.
+  // Constructor con parámetro obligatorio
   const AreaBanners({super.key, required this.banners});
 
-  // Método que construye la interfaz de usuario del widget.
   @override
   Widget build(BuildContext context) {
-    // Retorna una columna que contiene todos los banners generados dinámicamente.
+    // Retorna una columna con todos los banners
     return Column(
-      // Convierte cada objeto BannerData en un widget llamando al método _buildBanner.
-      // Luego convierte el iterable resultante en una lista de widgets.
-      children: banners.map((banner) => _buildBanner(banner)).toList(),
+      children: banners.map((banner) => _buildBanner(context, banner)).toList(),
     );
   }
 
-  // Método privado que construye visualmente cada banner individual.
-  Widget _buildBanner(BannerData banner) {
-    // Retorna un contenedor que representa la tarjeta visual del banner.
-    return Container(
-      // Margen externo del banner (espacio fuera del contenedor).
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      // Espaciado interno del banner (relleno interno del contenedor).
-      padding: const EdgeInsets.all(20),
-      // Decoración visual del contenedor (color, bordes, imágenes, sombra, etc.)
-      decoration: BoxDecoration(
-        // Asigna el color de fondo usando el método que convierte hex a Color.
-        color: _hexToColor(banner.backgroundColor),
-        // Bordes redondeados del contenedor.
-        borderRadius: BorderRadius.circular(12),
-        // Si existe una imagen de fondo, se la aplica con ciertos efectos.
-        image: banner.backgroundImage != null
-            ? DecorationImage(
-                // Carga la imagen desde una URL usando NetworkImage.
-                image: NetworkImage(banner.backgroundImage!),
-                // Ajusta la imagen para cubrir completamente el área.
-                fit: BoxFit.cover,
-                // Aplica un filtro de color oscuro sobre la imagen.
-                colorFilter: ColorFilter.mode(
-                  _hexToColor(banner.backgroundColor).withValues(alpha: 0.9),
-                  BlendMode.darken,
-                ),
-              )
-            // Si no hay imagen de fondo, no se aplica ninguna.
-            : null,
-        // Sombra debajo del contenedor para darle profundidad visual.
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
-        ],
-      ),
-      // Contenido interno del banner organizado en columna.
-      child: Column(
-        // Alinea los elementos al inicio del eje horizontal (izquierda).
-        crossAxisAlignment: CrossAxisAlignment.start,
+  // ============================================
+  // MÉTODO PRIVADO: Construcción visual de cada banner
+  // ============================================
+  Widget _buildBanner(BuildContext context, BannerData banner) {
+    return SizedBox(
+      width: double.infinity, // ✅ Ocupa todo el ancho disponible
+      height: 300, // Altura del bloque
+      child: Row(
         children: [
-          // Muestra el título del banner en mayúsculas.
-          Text(
-            banner.title.toUpperCase(),
-            style: TextStyle(
-              fontSize: 20, // Tamaño de letra del título.
-              fontWeight: FontWeight.bold, // Estilo negrita.
-              // 🎨 Si el modelo tiene color de texto, úsalo; si no, usa un color por defecto.
-              color: banner.textColor != null
-                  ? _hexToColor(banner.textColor!)
-                  : const Color(0xFF2C5F4F),
-            ),
-          ),
-          // Espaciado vertical entre el título y la descripción.
-          const SizedBox(height: 12),
-          // Muestra la descripción del banner.
-          Text(
-            banner.description,
-            style: TextStyle(
-              fontSize: 14, // Tamaño del texto descriptivo.
-              height: 1.5, // Altura de línea (espaciado entre líneas).
-              // 🎨 Aplica el color personalizado o un color base por defecto.
-              color: banner.textColor != null
-                  ? _hexToColor(banner.textColor!)
-                  : Colors.black87,
-            ),
-          ),
-          // Espacio entre la descripción y el botón.
-          const SizedBox(height: 16),
-          // Botón elevado (ElevatedButton) que ejecuta una acción al presionarlo.
-          ElevatedButton(
-            // Acción a ejecutar cuando se presiona el botón (puede ser nula).
-            onPressed: banner.onButtonPressed,
-            // Estilo personalizado del botón.
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2C5F4F), // Fondo blanco.
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                // Borde decorativo opcional con el color del texto del botón.
-                side: BorderSide(
-                  color: banner.buttonTextColor != null
-                      ? _hexToColor(banner.buttonTextColor!)
-                      : const Color(0xFF2C5F4F),
-                  width: 2,
+          // 🟨 LADO IZQUIERDO: Trapecio grande con información
+          Expanded(
+            flex: 3, // ✅ Ocupa el 60% aprox. del ancho total
+            child: ClipPath(
+              clipper: LeftTrapezoidClipper(),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Color(
+                    _hexToColor(banner.backgroundColor),
+                  ), // Fondo amarillo
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 20,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 🔹 Título principal (DESCUBRE)
+                    Text(
+                      banner.title.toUpperCase(),
+                      style: TextStyle(
+                        color: Color(
+                          _hexToColor(banner.textColor ?? '#08522B'),
+                        ),
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // 🔹 Descripción
+                    Text(
+                      banner.description,
+                      style: TextStyle(
+                        color: Color(
+                          _hexToColor(banner.textColor ?? '#08522B'),
+                        ),
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 🔹 Botón
+                    ElevatedButton(
+                      onPressed: banner.onButtonPressed,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(
+                          _hexToColor(banner.textColor ?? '#08522B'),
+                        ), // Fondo verde oscuro
+                        foregroundColor: Color(
+                          _hexToColor(banner.buttonTextColor ?? '#F0C339'),
+                        ), // Texto del botón
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: Text(
+                        banner.buttonText,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              // Relleno interno (espaciado) del botón.
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            // Texto que se muestra dentro del botón.
-            child: Text(
-              banner.buttonText,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                // 🎨 Color del texto del botón leído desde el modelo.
-                color: banner.buttonTextColor != null
-                    ? _hexToColor(banner.buttonTextColor!)
-                    : const Color(0xFF2C5F4F),
+          ),
+
+          // 🌄 LADO DERECHO: Trapecio pequeño con imagen de fondo
+          Expanded(
+            flex: 2, // ✅ Ocupa el 40% aprox. del ancho total
+            child: ClipPath(
+              clipper: RightTrapezoidClipper(),
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      banner.backgroundImage ??
+                          // Imagen por defecto de senderismo en montaña 🌄
+                          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=60',
+                    ),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      Colors.black.withOpacity(
+                        0.2,
+                      ), // Filtro suave para mejorar contraste
+                      BlendMode.darken,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -131,12 +143,54 @@ class AreaBanners extends StatelessWidget {
     );
   }
 
-  // Método privado que convierte un código de color hexadecimal (String) a un objeto Color.
-  Color _hexToColor(String hex) {
-    // Elimina el símbolo '#' si está presente en el string.
+  // ============================================
+  // MÉTODO: Convertir color hexadecimal a int
+  // ============================================
+  int _hexToColor(String hex) {
     hex = hex.replaceAll('#', '');
-    // Convierte el string hexadecimal en un valor entero y lo transforma en Color.
-    // Se agrega 'FF' al inicio para indicar opacidad completa (100%).
-    return Color(int.parse('FF$hex', radix: 16));
+    if (hex.length == 6) {
+      hex = 'FF$hex'; // Se agrega opacidad completa si no existe
+    }
+    return int.parse(hex, radix: 16);
   }
+}
+
+// ============================================
+// CLASE: ClipPath para el trapecio izquierdo
+// (más ancho e inclinado hacia la derecha)
+// ============================================
+class LeftTrapezoidClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.moveTo(0, 0);
+    path.lineTo(size.width * 0.92, 0); // línea superior
+    path.lineTo(size.width, size.height); // diagonal inferior derecha
+    path.lineTo(0, size.height); // base inferior
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
+
+// ============================================
+// CLASE: ClipPath para el trapecio derecho
+// (más pequeño e inclinado hacia la izquierda)
+// ============================================
+class RightTrapezoidClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.moveTo(0, 0);
+    path.lineTo(size.width, 0);
+    path.lineTo(size.width, size.height);
+    path.lineTo(size.width * 0.08, size.height); // Inclinación hacia adentro
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
