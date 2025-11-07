@@ -1,314 +1,96 @@
 // ============================================
 // ARCHIVO: lib/src/screens/home_screen.dart
+// Versión modular y simplificada: compone los
+// bloques funcionales sin mover lógica aquí.
 // ============================================
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; // Importa Flutter (widgets, temas, etc.)
 
-// Importamos los modelos de datos utilizados
-import '../models/app_models.dart';
-import '../models/evento/event_model.dart';
+// Importa el widget que agrupa Info básica + Menú (antes en este archivo)
+import 'area_fija/area_menu_info.dart';
 
-// Importamos el servicio para consumir la API de eventos
-import '../services/eventos/evento_service.dart';
+// Importa el widget que contiene toda la lógica del Top 10 (API, estado, carrusel)
+import 'pantallaInicio/area_top_eventos.dart';
 
-// Importamos los widgets personalizados
-import 'pantallaInicio/area_info_basica.dart';
-import 'pantallaInicio/area_menu.dart';
-import 'pantallaInicio/area_informacion_central.dart';
-import 'pantallaInicio/area_banners.dart';
+// Importa las secciones visuales simples existentes
 import 'pantallaInicio/area_sabia_que.dart';
-import 'pantallaInicio/area_footer.dart';
+import 'area_fija/area_banners.dart';
+import 'area_fija/area_footer.dart';
 
-// Importamos el modal de detalle del evento
-import '../widgets/evento_detalle_modal.dart';
+// Importa los modelos usados para los banners
+import '../models/app_models.dart';
 
 // ============================================
-// CLASE PRINCIPAL DE LA PANTALLA HOME
+// WIDGET PRINCIPAL: HomeScreen
 // ============================================
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-// ============================================
-// ESTADO DE LA PANTALLA HOME
-// ============================================
-class _HomeScreenState extends State<HomeScreen> {
-  // Índice actual del menú principal
-  int selectedMenuIndex = 0;
-
-  // Servicio para obtener los eventos desde la API
-  final EventoService _eventoService = EventoService();
-
-  // Control de estado de carga
-  bool _isLoadingEventos = true;
-  String? _errorMessage;
-
-  // Lista donde se almacenan los eventos Top 10
-  List<EventoModel> _eventosTop10 = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _cargarEventosTop10();
-  }
-
-  // ============================================
-  // MÉTODO: Cargar los eventos desde la API
-  // ============================================
-  Future<void> _cargarEventosTop10() async {
-    setState(() {
-      _isLoadingEventos = true;
-      _errorMessage = null;
-    });
-
-    try {
-      // Llamada al servicio para obtener los eventos Top 10
-      final eventos = await _eventoService.getTop10Eventos();
-
-      setState(() {
-        _eventosTop10 = eventos;
-        _isLoadingEventos = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoadingEventos = false;
-      });
-
-      // Muestra un mensaje de error si la carga falla
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al cargar eventos: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  // ============================================
-  // MÉTODO BUILD PRINCIPAL
-  // ============================================
-  @override
   Widget build(BuildContext context) {
+    // Scaffold principal de la pantalla de inicio
     return Scaffold(
-      body: RefreshIndicator(
-        // Permite recargar la información al hacer scroll hacia abajo
-        onRefresh: _cargarEventosTop10,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              // 🟩 SECCIÓN 1: Información básica (hora, clima, ciudad, íconos)
-              AreaInfoBasica(
-                cityName: 'Bucaramanga',
-                backgroundColor: '#2C5F4F',
-                showStatusBar: true,
-                items: _getInfoBasicaItems(),
-              ),
+      backgroundColor: Colors.white, // Fondo blanco general de la pantalla
+      body: SingleChildScrollView(
+        // Permite scroll vertical de toda la pantalla
+        physics:
+            const BouncingScrollPhysics(), // Efecto de rebote en iOS/Android
+        child: Column(
+          children: [
+            // ------------------------------------------------
+            // SECCIÓN 1: Info básica (hora, clima, ciudad)
+            // + Menú principal horizontal
+            // (esta sección agrupa AreaInfoBasica + AreaMenu)
+            // ------------------------------------------------
+            const AreaMenuInfo(),
 
-              // 🟩 SECCIÓN 2: Menú principal horizontal
-              AreaMenu(
-                menuItems: _getMenuItems(),
-                initialIndex: selectedMenuIndex,
-                onItemTap: (index) => setState(() {
-                  selectedMenuIndex = index;
-                }),
-                backgroundColor: '#89C53F',
-                selectedColor: '#085029',
-              ),
+            // ------------------------------------------------
+            // SECCIÓN 2: Top 10 de eventos
+            // (contiene toda la lógica de carga y el carrusel)
+            // ------------------------------------------------
+            const AreaTopEventos(),
 
-              // 🟩 SECCIÓN 3: Carrusel de información central (Top 10 eventos)
-              Container(
-                width: double.infinity, // ✅ Ocupa todo el ancho
-                color: const Color(0xFF085029), // 🎨 Fondo verde oscuro
-                padding: const EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 16,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 🏷️ Título personalizado con salto de línea visual
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            const TextSpan(
-                              text: 'Top 10 para\n',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            WidgetSpan(
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 70),
-                                child: Text(
-                                  'en familia',
-                                  style: const TextStyle(
-                                    color: Color(0xFF89C53F),
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    height: 1.2,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+            // ------------------------------------------------
+            // SECCIÓN 3: ¿SABÍAS QUÉ?
+            // (componente simple y estático)
+            // ------------------------------------------------
+            const AreaSabiaQue(),
 
-                    // 🌀 Carrusel de eventos (mantiene la funcionalidad existente)
-                    _buildAreaInformacionCentral(),
-                  ],
-                ),
-              ),
+            // ------------------------------------------------
+            // SECCIÓN 4: Banner "DESCUBRE"
+            // (usa AreaBanners y requiere BannerData)
+            // ------------------------------------------------
+            AreaBanners(banners: _getBannerData()),
 
-              // 🟩 SECCIÓN 4: NUEVA SECCIÓN “¿SABÍAS QUÉ?”
-              const AreaSabiaQue(),
+            // ------------------------------------------------
+            // SECCIÓN 5: Footer institucional
+            // ------------------------------------------------
+            const AreaFooter(),
 
-              // 🟩 SECCIÓN 5: Banner “DESCUBRE”
-              AreaBanners(banners: _getBannerData()),
-
-              // 🟩 SECCIÓN 6: FOOTER INSTITUCIONAL
-              const AreaFooter(),
-
-              const SizedBox(height: 20),
-            ],
-          ),
+            // Espacio final debajo del footer
+            const SizedBox(height: 30),
+          ],
         ),
       ),
     );
   }
 
   // ============================================
-  // CONSTRUCCIÓN DEL ÁREA CENTRAL (Carrusel Top 10)
+  // DATOS DE PRUEBA PARA LOS BANNERS
+  // (se mantienen aquí para que Home haga la composición)
   // ============================================
-  Widget _buildAreaInformacionCentral() {
-    if (_isLoadingEventos) {
-      return const Padding(
-        padding: EdgeInsets.all(40),
-        child: Column(
-          children: [
-            CircularProgressIndicator(color: Color(0xFF2C5F4F)),
-            SizedBox(height: 16),
-            Text('Cargando eventos...', style: TextStyle(color: Colors.grey)),
-          ],
-        ),
-      );
-    }
-
-    if (_errorMessage != null) {
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 48),
-            Text('Error: $_errorMessage'),
-            ElevatedButton.icon(
-              onPressed: _cargarEventosTop10,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Reintentar'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // ✅ Si todo está correcto, mostramos el carrusel
-    return AreaInformacionCentral(
-      carouselItems: _getCarouselItems(),
-      categories: const [],
-      categoryColumns: 0,
-    );
-  }
-
-  // ============================================
-  // MOSTRAR DETALLE DEL EVENTO EN MODAL
-  // ============================================
-  void _verDetalleEvento(EventoModel evento) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) =>
-          EventoDetalleModal(evento: evento, onNavigate: _navigateTo),
-    );
-  }
-
-  // ============================================
-  // MÉTODOS AUXILIARES DE DATOS
-  // ============================================
-  List<InfoBasicaItem> _getInfoBasicaItems() => [
-    InfoBasicaItem(
-      icon: 'info',
-      label: 'Información',
-      onTap: () => _navigateTo('Info'),
-    ),
-    InfoBasicaItem(
-      icon: 'location',
-      label: 'Mapa',
-      onTap: () => _navigateTo('Mapa'),
-    ),
-    InfoBasicaItem(
-      icon: 'event',
-      label: 'Eventos',
-      onTap: () => _navigateTo('Eventos'),
-    ),
-    InfoBasicaItem(
-      icon: 'calendar',
-      label: 'Agenda',
-      onTap: () => _navigateTo('Agenda'),
-    ),
-  ];
-
-  List<MenuItem> _getMenuItems() => [
-    MenuItem(text: 'Experiencias', route: '/experiencias'),
-    MenuItem(text: 'Transporte', route: '/transporte'),
-    MenuItem(text: 'Compras', route: '/compras'),
-  ];
-
-  List<CarouselItem> _getCarouselItems() => _eventosTop10
-      .map(
-        (evento) => CarouselItem(
-          imageUrl: evento.getImageUrl(),
-          title: evento.nombre,
-          subtitle: evento.ubicacion ?? '',
-          onTap: () => _verDetalleEvento(evento),
-        ),
-      )
-      .toList();
-
   List<BannerData> _getBannerData() => [
     BannerData(
-      title: 'DESCUBRE',
+      title: 'DESCUBRE', // Título del banner
       description:
-          'Descubre su encanto entre parques, montañas y senderismo, una tradición que enamora a cada visitante.',
-      buttonText: 'Ver más',
-      backgroundColor: '#F0C339',
-      textColor: '#08522B',
-      buttonTextColor: '#F0C339',
-      onButtonPressed: () => _navigateTo('Info Parques'),
+          'Descubre su encanto entre parques, montañas y senderismo, una tradición que enamora a cada visitante.', // Descripción
+      buttonText: 'Ver más', // Texto del botón
+      backgroundColor: '#F0C339', // Color de fondo hexadecimal
+      textColor: '#08522B', // Color del texto en hexadecimal
+      buttonTextColor: '#F0C339', // Color del texto del botón
+      onButtonPressed: () {
+        // Acción temporal vacía (puedes enlazarla a navegación)
+      },
     ),
   ];
-
-  // ============================================
-  // MÉTODO DE NAVEGACIÓN TEMPORAL (SnackBar)
-  // ============================================
-  void _navigateTo(String destino) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Navegando a: $destino')));
-  }
 }
