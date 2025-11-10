@@ -7,15 +7,15 @@
 import 'package:flutter/material.dart'; // Importa Flutter (widgets, temas, etc.)
 
 // Importa el widget que agrupa Info básica + Menú (antes en este archivo)
-import 'area_fija/area_menu_info.dart';
+import 'area_fija/header/area_menu_info.dart';
 
 // Importa el widget que contiene toda la lógica del Top 10 (API, estado, carrusel)
 import 'pantallaInicio/area_top_eventos.dart';
 
 // Importa las secciones visuales simples existentes
 import 'pantallaInicio/area_sabia_que.dart';
-import 'area_fija/area_banners.dart';
-import 'area_fija/area_footer.dart';
+import 'area_fija/footer/area_banners.dart';
+import 'area_fija/footer/area_footer.dart';
 
 // Importa los modelos usados para los banners
 import '../models/app_models.dart';

@@ -17,7 +17,9 @@ import 'package:flutter/material.dart'; // Widgets, estilos, layouts
 import 'package:http/http.dart' as http; // Permite llamadas HTTP
 
 // Importa el modelo InfoBasicaItem de la carpeta de modelos
-import '../../models/app_models.dart'; // Define la estructura de los items
+import '../../../models/app_models.dart'; // Define la estructura de los items
+
+import 'package:flutter_svg/flutter_svg.dart';
 
 // Widget principal que muestra la sección de información básica
 // StatefulWidget para poder actualizar hora y clima dinámicamente
@@ -306,42 +308,36 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
     );
   }
 
-  // Construye cada botón circular con ícono y texto
+  // ============================================
+  // MÉTODO: Construye cada botón circular con ícono y texto
+  // ============================================
   Widget _buildIconButton(InfoBasicaItem item) {
     return InkWell(
       onTap: item.onTap, // Acción al presionar el botón
       child: SizedBox(
-        width: 60, // Ancho fijo
+        width: 60, // Ancho fijo del botón
         child: Column(
           children: [
-            // Contenedor circular para el ícono
+            // 🟢 Contenedor circular para el ícono
             Container(
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white, // Fondo blanco
+                color: Colors.white, // Fondo blanco del círculo
                 shape: BoxShape.circle, // Forma circular
                 border: Border.all(
-                  color: const Color(0xFF2C5F4F), // Borde verde oscuro
+                  color: const Color(
+                    0xFF2C5F4F,
+                  ), // Borde verde oscuro institucional
                   width: 2,
                 ),
               ),
-              child: Center(
-                child: item.icon.startsWith('assets/')
-                    ? Image.asset(
-                        item.icon,
-                        width: 24,
-                        height: 24,
-                      ) // Imagen de assets
-                    : Icon(
-                        _getIconData(item.icon), // Icono de Flutter
-                        color: const Color(0xFF2C5F4F), // Verde oscuro
-                        size: 24,
-                      ),
-              ),
+              // 📦 Contenido central del ícono
+              child: Center(child: _buildDynamicIcon(item.icon)),
             ),
+
             const SizedBox(height: 8), // Espacio debajo del ícono
-            // Texto descriptivo debajo del botón
+            // 🏷️ Texto descriptivo del botón
             Text(
               item.label,
               style: const TextStyle(
@@ -349,13 +345,51 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
               ),
-              textAlign: TextAlign.center, // Centrado
-              maxLines: 2, // Máximo dos líneas
-              overflow: TextOverflow.ellipsis, // Cortar si es muy largo
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
       ),
+    );
+  }
+
+  // ============================================
+  // MÉTODO AUXILIAR: Dibuja dinámicamente el ícono según su origen
+  // ============================================
+  Widget _buildDynamicIcon(String iconPath) {
+    // 1️⃣ Si el ícono es un SVG remoto (por ejemplo de Render)
+    if (iconPath.endsWith('.svg')) {
+      return SvgPicture.network(
+        iconPath, // URL completa del SVG
+        headers: const {
+          'Accept': 'image/svg+xml',
+        }, // Asegura tipo MIME correcto
+        fit: BoxFit.contain, // Ajuste dentro del círculo
+        width: 28,
+        height: 28,
+        colorFilter: const ColorFilter.mode(
+          Color(0xFF085029), // Verde institucional
+          BlendMode.srcIn,
+        ),
+        placeholderBuilder: (context) =>
+            const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.error_outline, color: Colors.red, size: 24),
+      );
+    }
+
+    // 2️⃣ Si el ícono es una imagen local (assets/)
+    if (iconPath.startsWith('assets/')) {
+      return Image.asset(iconPath, width: 28, height: 28, fit: BoxFit.contain);
+    }
+
+    // 3️⃣ Si el ícono es un nombre de ícono interno de Flutter
+    return Icon(
+      _getIconData(iconPath),
+      color: const Color(0xFF2C5F4F),
+      size: 24,
     );
   }
 

@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 
 // Importa los modelos personalizados (CategoryItem, etc.)
-import '../../models/app_models.dart';
+import '../../../models/app_models.dart';
 
 // ===============================================================
 // 🟢 WIDGET: AreaMenus

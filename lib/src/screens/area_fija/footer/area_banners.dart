@@ -6,7 +6,7 @@
 // ============================================
 
 import 'package:flutter/material.dart';
-import '../../models/app_models.dart'; // Importamos el modelo BannerData
+import '../../../models/app_models.dart'; // Importamos el modelo BannerData
 
 // ============================================
 // WIDGET PRINCIPAL: AreaBanners
