@@ -11,22 +11,22 @@ const String baseBackendUrl = 'https://appmovil-backend.onrender.com';
 // 🧭 ÍCONOS DEL HEADER (ubicados en /images/header/ del backend)
 // ============================================================
 class FooterIcons {
-  static const String Cajeros = '$baseBackendUrl/images/footer/Cajeros.png';
-  static const String CasaDeCambio =
+  static const String cajeros = '$baseBackendUrl/images/footer/Cajeros.png';
+  static const String casaDeCambio =
       '$baseBackendUrl/images/footer/Casa_de_cambio.png';
-  static const String Compras = '$baseBackendUrl/images/footer/Compras.png';
-  static const String Hoteles = '$baseBackendUrl/images/footer/Hoteles.png';
-  static const String Monumentos =
+  static const String compras = '$baseBackendUrl/images/footer/Compras.png';
+  static const String hoteles = '$baseBackendUrl/images/footer/Hoteles.png';
+  static const String monumentos =
       '$baseBackendUrl/images/footer/Monumentos.png';
-  static const String Parques = '$baseBackendUrl/images/footer/Parques.png';
+  static const String parques = '$baseBackendUrl/images/footer/Parques.png';
   static const String puntosInformacion =
       '$baseBackendUrl/images/footer/Puntos_de_informacion.png';
-  static const String Restaurantes =
+  static const String restaurantes =
       '$baseBackendUrl/images/footer/Restaurantes.png';
-  static const String Seguridad = '$baseBackendUrl/images/footer/Seguridad.png';
-  static const String SitiosCulturales =
+  static const String seguridad = '$baseBackendUrl/images/footer/Seguridad.png';
+  static const String sitiosCulturales =
       '$baseBackendUrl/images/footer/Sitios_culturales.png';
-  static const String Transporte =
+  static const String transporte =
       '$baseBackendUrl/images/footer/Transporte.png';
 }
 

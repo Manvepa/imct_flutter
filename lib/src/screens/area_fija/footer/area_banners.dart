@@ -128,8 +128,8 @@ class AreaBanners extends StatelessWidget {
                     ),
                     fit: BoxFit.cover,
                     colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(
-                        0.2,
+                      Colors.black.withValues(
+                        alpha: 0.2,
                       ), // Filtro suave para mejorar contraste
                       BlendMode.darken,
                     ),
