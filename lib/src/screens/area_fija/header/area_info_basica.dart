@@ -43,8 +43,9 @@ class AreaInfoBasica extends StatefulWidget {
   const AreaInfoBasica({
     super.key,
     required this.cityName,
-    this.backgroundImage,
-    this.backgroundColor = '#2C5F4F',
+    this.backgroundImage =
+        'https://res.cloudinary.com/dxn9mrpva/image/upload/v1762728458/lugares_turisticos/eno9glpuhds85fugygqf.jpg',
+    this.backgroundColor = '#B3FFFFFF',
     required this.items,
     this.showStatusBar = true,
   });
@@ -212,9 +213,8 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
       child: Container(
         // Capa semitransparente sobre el fondo
         decoration: BoxDecoration(
-          color: _hexToColor(
-            widget.backgroundColor,
-          ).withValues(alpha: 0.50), // Oscurece el fondo
+          color: _hexToColor('#CBE6D3').withValues(alpha: 0.6),
+          // Oscurece el fondo
         ),
         padding: const EdgeInsets.symmetric(
           vertical: 20,
@@ -268,7 +268,11 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
         // Muestra la hora actual o "--:--" si no disponible
         Text(
           _currentTime.isEmpty ? '--:--' : _currentTime,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: const TextStyle(
+            color: Color(0xFF2C5F4F),
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
         ),
 
         // Sección de la derecha con clima y WiFi/batería
@@ -276,32 +280,33 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
           children: [
             Icon(
               _weatherIcon,
-              color: Colors.white,
+              color: Color(0xFF2C5F4F),
+              fontWeight: FontWeight.bold,
               size: 18,
             ), // Icono del clima
             const SizedBox(width: 4), // Separación pequeña
 
             Text(
               _temperature.isEmpty ? '--°C' : _temperature, // Temperatura
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(
+                color: Color(0xFF2C5F4F),
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
             ),
 
             const SizedBox(width: 8),
 
             Text(
               _weatherDescription, // Descripción corta del clima
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+              style: const TextStyle(
+                color: Color(0xFF2C5F4F),
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
 
             const SizedBox(width: 12),
-
-            const Icon(Icons.wifi, color: Colors.white, size: 18), // WiFi
-            const SizedBox(width: 4),
-            const Icon(
-              Icons.battery_full,
-              color: Colors.white,
-              size: 18,
-            ), // Batería
           ],
         ),
       ],
@@ -315,7 +320,7 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
     return InkWell(
       onTap: item.onTap, // Acción al presionar el botón
       child: SizedBox(
-        width: 60, // Ancho fijo del botón
+        width: 75, // Ancho fijo del botón
         child: Column(
           children: [
             // 🟢 Contenedor circular para el ícono
@@ -323,7 +328,7 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.white, // Fondo blanco del círculo
+                color: Colors.transparent, // Fondo blanco del círculo
                 shape: BoxShape.circle, // Forma circular
                 border: Border.all(
                   color: const Color(
@@ -341,7 +346,7 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
             Text(
               item.label,
               style: const TextStyle(
-                color: Colors.white,
+                color: Color(0xFF085029),
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
               ),
@@ -359,20 +364,15 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
   // MÉTODO AUXILIAR: Dibuja dinámicamente el ícono según su origen
   // ============================================
   Widget _buildDynamicIcon(String iconPath) {
-    // 1️⃣ Si el ícono es un SVG remoto (por ejemplo de Render)
+    // 1️⃣ Si el ícono es un SVG remoto (por ejemplo, de Render)
     if (iconPath.endsWith('.svg')) {
       return SvgPicture.network(
-        iconPath, // URL completa del SVG
-        headers: const {
-          'Accept': 'image/svg+xml',
-        }, // Asegura tipo MIME correcto
-        fit: BoxFit.contain, // Ajuste dentro del círculo
+        iconPath,
+        headers: const {'Accept': 'image/svg+xml'},
+        fit: BoxFit.contain,
         width: 28,
         height: 28,
-        colorFilter: const ColorFilter.mode(
-          Color(0xFF085029), // Verde institucional
-          BlendMode.srcIn,
-        ),
+        colorFilter: const ColorFilter.mode(Color(0xFF085029), BlendMode.srcIn),
         placeholderBuilder: (context) =>
             const Center(child: CircularProgressIndicator(strokeWidth: 2)),
         errorBuilder: (context, error, stackTrace) =>
@@ -385,7 +385,27 @@ class _AreaInfoBasicaState extends State<AreaInfoBasica> {
       return Image.asset(iconPath, width: 28, height: 28, fit: BoxFit.contain);
     }
 
-    // 3️⃣ Si el ícono es un nombre de ícono interno de Flutter
+    // 3️⃣ Si el ícono es una imagen remota (JPG, PNG, WEBP, etc.)
+    if (iconPath.startsWith('http') &&
+        (iconPath.endsWith('.png') ||
+            iconPath.endsWith('.jpg') ||
+            iconPath.endsWith('.jpeg') ||
+            iconPath.endsWith('.webp'))) {
+      return Image.network(
+        iconPath,
+        width: 28,
+        height: 28,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+        },
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.broken_image, color: Colors.red, size: 24),
+      );
+    }
+
+    // 4️⃣ Si el ícono es un nombre de ícono interno de Flutter
     return Icon(
       _getIconData(iconPath),
       color: const Color(0xFF2C5F4F),

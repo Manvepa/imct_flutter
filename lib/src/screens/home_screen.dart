@@ -20,6 +20,9 @@ import 'area_fija/footer/area_footer.dart';
 // Importa los modelos usados para los banners
 import '../models/app_models.dart';
 
+// Importamos el nuevo widget FooterBackground
+import 'area_fija/footer/footer_background.dart';
+
 // ============================================
 // WIDGET PRINCIPAL: HomeScreen
 // ============================================
@@ -65,10 +68,12 @@ class HomeScreen extends StatelessWidget {
             // ------------------------------------------------
             // SECCIÓN 5: Footer institucional
             // ------------------------------------------------
-            const AreaFooter(),
+            AreaFooter(),
 
-            // Espacio final debajo del footer
-            const SizedBox(height: 30),
+            // ------------------------------------------------
+            // SECCIÓN 6: Footer con imagen de fondo
+            // ------------------------------------------------
+            FooterBackground(),
           ],
         ),
       ),

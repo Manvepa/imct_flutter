@@ -73,33 +73,33 @@ class _AreaMenuInfoState extends State<AreaMenuInfo> {
 
     final items = [
       InfoBasicaItem(
-        icon: FooterIcons.descubreBucaramanga,
-        label: 'Descubre',
+        icon: HeaderIcons.descubreBucaramanga,
+        label: 'Descubre Bucaramanga',
         onTap: () => _navigateTo('Descubre Bucaramanga'),
       ),
       InfoBasicaItem(
-        icon: FooterIcons.rutasExperiencias,
-        label: 'Rutas',
+        icon: HeaderIcons.rutasExperiencias,
+        label: 'Rutas y experiencias',
         onTap: () => _navigateTo('Rutas y Experiencias'),
       ),
       InfoBasicaItem(
-        icon: FooterIcons.saboresRegion,
-        label: 'Sabores',
+        icon: HeaderIcons.saboresRegion,
+        label: 'Sabores de la Región',
         onTap: () => _navigateTo('Sabores de la Región'),
       ),
       InfoBasicaItem(
-        icon: FooterIcons.agendaEventos,
-        label: 'Agenda',
+        icon: HeaderIcons.agendaEventos,
+        label: 'Agenda y Eventos',
         onTap: () => _navigateTo('Agenda y Eventos'),
       ),
       InfoBasicaItem(
-        icon: FooterIcons.aventuraDeporte,
-        label: 'Aventura',
+        icon: HeaderIcons.aventuraDeporte,
+        label: 'Aventura y Deporte',
         onTap: () => _navigateTo('Aventura y Deporte'),
       ),
       InfoBasicaItem(
-        icon: FooterIcons.hospedajeServicios,
-        label: 'Hospedaje',
+        icon: HeaderIcons.hospedajeServicios,
+        label: 'Hospedaje y Servicios',
         onTap: () => _navigateTo('Hospedaje y Servicios'),
       ),
     ];

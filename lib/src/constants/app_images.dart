@@ -10,40 +10,40 @@ const String baseBackendUrl = 'https://appmovil-backend.onrender.com';
 // ============================================================
 // 🧭 ÍCONOS DEL HEADER (ubicados en /images/header/ del backend)
 // ============================================================
-class HeaderIcons {
-  static const String cajeros = '$baseBackendUrl/images/header/Cajeros.svg';
-  static const String casaDeCambio =
-      '$baseBackendUrl/images/header/Casa_de_cambio.svg';
-  static const String compras = '$baseBackendUrl/images/header/Compras.svg';
-  static const String hoteles = '$baseBackendUrl/images/header/Hoteles.svg';
-  static const String monumentos =
-      '$baseBackendUrl/images/header/Monumentos.svg';
-  static const String parques = '$baseBackendUrl/images/header/Parques.svg';
+class FooterIcons {
+  static const String Cajeros = '$baseBackendUrl/images/footer/Cajeros.png';
+  static const String CasaDeCambio =
+      '$baseBackendUrl/images/footer/Casa_de_cambio.png';
+  static const String Compras = '$baseBackendUrl/images/footer/Compras.png';
+  static const String Hoteles = '$baseBackendUrl/images/footer/Hoteles.png';
+  static const String Monumentos =
+      '$baseBackendUrl/images/footer/Monumentos.png';
+  static const String Parques = '$baseBackendUrl/images/footer/Parques.png';
   static const String puntosInformacion =
-      '$baseBackendUrl/images/header/Puntos_de_informacion.svg';
-  static const String restaurantes =
-      '$baseBackendUrl/images/header/Restaurantes.svg';
-  static const String seguridad = '$baseBackendUrl/images/header/Seguridad.svg';
-  static const String sitiosCulturales =
-      '$baseBackendUrl/images/header/Sitios_culturales.svg';
-  static const String transporte =
-      '$baseBackendUrl/images/header/Transporte.svg';
+      '$baseBackendUrl/images/footer/Puntos_de_informacion.png';
+  static const String Restaurantes =
+      '$baseBackendUrl/images/footer/Restaurantes.png';
+  static const String Seguridad = '$baseBackendUrl/images/footer/Seguridad.png';
+  static const String SitiosCulturales =
+      '$baseBackendUrl/images/footer/Sitios_culturales.png';
+  static const String Transporte =
+      '$baseBackendUrl/images/footer/Transporte.png';
 }
 
 // ============================================================
 // 🏞️ ÍCONOS DEL FOOTER (ubicados en /images/footer/ del backend)
 // ============================================================
-class FooterIcons {
+class HeaderIcons {
   static const String agendaEventos =
-      '$baseBackendUrl/images/footer/Agenda_y_eventos.svg';
+      '$baseBackendUrl/images/header/Agenda_y_eventos.png';
   static const String aventuraDeporte =
-      '$baseBackendUrl/images/footer/Aventura_y_deporte.svg';
+      '$baseBackendUrl/images/header/Aventura_y_deporte.png';
   static const String descubreBucaramanga =
-      '$baseBackendUrl/images/footer/Descubre_bucaramanga.svg';
+      '$baseBackendUrl/images/header/Descubre_bucaramanga.png';
   static const String hospedajeServicios =
-      '$baseBackendUrl/images/footer/Hospedaje_y_servicios.svg';
+      '$baseBackendUrl/images/header/Hospedaje_y_servicios.png';
   static const String rutasExperiencias =
-      '$baseBackendUrl/images/footer/Rutas_y_experiencias.svg';
+      '$baseBackendUrl/images/header/Rutas_y_experiencias.png';
   static const String saboresRegion =
-      '$baseBackendUrl/images/footer/Sabores_de_la_region.svg';
+      '$baseBackendUrl/images/header/Sabores_de_la_region.png';
 }
