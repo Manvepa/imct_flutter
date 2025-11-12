@@ -3,7 +3,7 @@
 // ============================================
 
 import 'package:flutter/material.dart';
-import '../models/evento/event_model.dart';
+import '../../models/evento/event_model.dart';
 
 // ============================================
 // WIDGET: Modal con detalle de un evento

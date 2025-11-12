@@ -15,7 +15,7 @@ import '../../services/eventos/evento_service.dart';
 import 'area_informacion_central.dart';
 
 // Importamos el modal de detalle del evento
-import '../../widgets/evento_detalle_modal.dart';
+import '../../widgets/evento/evento_detalle_modal.dart';
 
 // ============================================
 // WIDGET PRINCIPAL: Área de Top 10 de eventos
