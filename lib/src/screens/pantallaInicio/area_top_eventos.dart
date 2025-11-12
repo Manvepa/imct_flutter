@@ -101,7 +101,7 @@ class _AreaTopEventosState extends State<AreaTopEventos> {
               text: TextSpan(
                 children: [
                   const TextSpan(
-                    text: 'Top 10 para\n',
+                    text: 'Top 10 para visitar\n',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 22,

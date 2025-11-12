@@ -10,6 +10,8 @@ import 'dart:convert';
 import '../../../models/rutasExperiencia/lugar_models.dart';
 // Importa el widget visual de la tarjeta individual
 import 'lugar_card.dart';
+// Importamos para logging
+import 'package:logger/logger.dart';
 
 // ============================================
 // WIDGET CON ESTADO: AreaLugaresCarousel
@@ -23,6 +25,7 @@ class AreaLugaresCarousel extends StatefulWidget {
 }
 
 class _AreaLugaresCarouselState extends State<AreaLugaresCarousel> {
+  final Logger _logger = Logger();
   // ============================================
   // ESTADO DEL WIDGET
   // ============================================
@@ -94,7 +97,7 @@ class _AreaLugaresCarouselState extends State<AreaLugaresCarousel> {
         isLoading = false;
         errorMessage = 'Error al cargar los lugares';
       });
-      print('Error: $e');
+      _logger.e('Error: $e');
     }
   }
 
