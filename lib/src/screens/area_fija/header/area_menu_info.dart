@@ -129,8 +129,14 @@ class _AreaMenuInfoState extends State<AreaMenuInfo> {
   // ============================================
   void _navigateTo(String destino) {
     logger.i('🚀 Navegando a: $destino');
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Navegando a: $destino')));
+
+    if (destino == 'Rutas y Experiencias') {
+      // Usamos Navigator.pushNamed para navegar a la ruta registrada
+      Navigator.pushNamed(context, '/rutasExperiencias');
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Navegando a: $destino')));
+    }
   }
 }
