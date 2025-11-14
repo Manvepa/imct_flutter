@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 // Importa las pantallas necesarias
 import 'src/screens/splash_screen.dart';
-import 'src/screens/rutas_experiencia_screen.dart'; // Ruta de Rutas y Experiencias
+// import 'src/screens/rutas_experiencia_screen.dart'; // Ruta de Rutas y Experiencias
 import 'src/screens/home_screen.dart'; // Ruta al HomeScreen
 
 // Importa el cliente Dio para manejar las peticiones HTTP.
@@ -29,8 +29,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const SplashScreen(), // Pantalla inicial
         '/home': (context) => const HomeScreen(), // Ruta a HomeScreen
-        '/rutasExperiencias': (context) =>
-            const RutasExperienciaScreen(), // Ruta a Rutas y Experiencias
+        // '/rutasExperiencias': (context) =>
+        // const RutasExperienciaScreen(), // Ruta a Rutas y Experiencias
       },
       initialRoute: '/', // Ruta inicial (SplashScreen)
     );

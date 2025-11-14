@@ -1,21 +1,28 @@
 // ============================================
 // ARCHIVO: lib/src/widgets/rutas/area_lugares_carousel.dart
-// Contiene TODA la lógica: llamadas API, estado, y carousel
+// Contiene TODA la lógica del carousel y ahora
+// las peticiones se realizan usando DIO + ApiConfig + Endpoints.
 // ============================================
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:dio/dio.dart'; // ← Nuevo: usamos Dio
+
+// Nuevo: Importamos tu cliente configurado y los endpoints
+import '../../../api/dio_client.dart';
+import '../../../api/endpoints.dart';
+
 // Importa los modelos de datos
 import '../../../models/rutasExperiencia/lugar_models.dart';
+
 // Importa el widget visual de la tarjeta individual
 import 'lugar_card.dart';
-// Importamos para logging
+
+// Logging
 import 'package:logger/logger.dart';
 
 // ============================================
 // WIDGET CON ESTADO: AreaLugaresCarousel
-// Maneja toda la lógica de carga y presentación
+// Maneja la lógica de carga y presentación del carousel
 // ============================================
 class AreaLugaresCarousel extends StatefulWidget {
   const AreaLugaresCarousel({super.key});
@@ -26,6 +33,7 @@ class AreaLugaresCarousel extends StatefulWidget {
 
 class _AreaLugaresCarouselState extends State<AreaLugaresCarousel> {
   final Logger _logger = Logger();
+
   // ============================================
   // ESTADO DEL WIDGET
   // ============================================
@@ -35,25 +43,23 @@ class _AreaLugaresCarouselState extends State<AreaLugaresCarousel> {
 
   // Controller del PageView para el carousel
   final PageController _pageController = PageController(
-    viewportFraction: 0.85, // Muestra parte de las tarjetas laterales
+    viewportFraction: 0.85, // Muestra parte de tarjetas laterales
   );
-  int _currentPage = 0; // Página actual del carousel
+  int _currentPage = 0;
 
   // ============================================
-  // CICLO DE VIDA
+  // CICLO DE VIDA DEL WIDGET
   // ============================================
   @override
   void initState() {
     super.initState();
-    _fetchLugares(); // Carga los datos al iniciar
+    _fetchLugares(); // Carga inicial
 
-    // Listener para detectar cambios de página
+    // Listener de cambio de página
     _pageController.addListener(() {
       int next = _pageController.page!.round();
       if (_currentPage != next) {
-        setState(() {
-          _currentPage = next;
-        });
+        setState(() => _currentPage = next);
       }
     });
   }
@@ -65,7 +71,9 @@ class _AreaLugaresCarouselState extends State<AreaLugaresCarousel> {
   }
 
   // ============================================
-  // LÓGICA DE CARGA DE DATOS (API)
+  // FUNCIÓN DE CARGA DE LUGARES USANDO DIO
+  // Aquí reemplazamos http.get() por DioClient.instance
+  // y usamos Endpoints.lugaresTop10
   // ============================================
   Future<void> _fetchLugares() async {
     try {
@@ -74,30 +82,41 @@ class _AreaLugaresCarouselState extends State<AreaLugaresCarousel> {
         errorMessage = null;
       });
 
-      // Llamada a la API
-      final response = await http.get(
-        Uri.parse(
-          'https://appmovil-backend.onrender.com/api/public/lugares/top10',
-        ),
-        headers: {'Content-Type': 'application/json'},
-      );
+      // Usamos la instancia global de Dio con:
+      // - Base URL configurada
+      // - Interceptores
+      // - Headers globales
+      final dio = DioClient.instance;
 
+      // Realizamos la petición sin escribir la URL a mano
+      final response = await dio.get(Endpoints.lugaresTop10);
+
+      // Si el backend responde OK (200):
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        // Si tu backend devuelve un arreglo directo:
+        final List data = response.data;
 
         setState(() {
-          lugares = data.map((json) => LugarTop.fromJson(json)).toList();
+          lugares = data.map((e) => LugarTop.fromJson(e)).toList();
           isLoading = false;
         });
       } else {
         throw Exception('Error ${response.statusCode}');
       }
-    } catch (e) {
+    } on DioException catch (e) {
+      // Error específico de Dio
       setState(() {
         isLoading = false;
         errorMessage = 'Error al cargar los lugares';
       });
-      _logger.e('Error: $e');
+      _logger.e('❌ Error Dio: ${e.message}');
+    } catch (e) {
+      // Error genérico
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Error al cargar los lugares';
+      });
+      _logger.e('❌ Error desconocido: $e');
     }
   }
 
@@ -133,11 +152,8 @@ class _AreaLugaresCarouselState extends State<AreaLugaresCarousel> {
                 onPressed: _fetchLugares,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF9C4F96),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 15,
-                  ),
+                  foregroundColor: Color(0xFF9C4F96),
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 ),
                 child: const Text('Reintentar'),
               ),
@@ -158,21 +174,16 @@ class _AreaLugaresCarouselState extends State<AreaLugaresCarousel> {
     }
 
     // ============================================
-    // CAROUSEL CON PageView
-    // ============================================
-    // ============================================
-    // CAROUSEL CON PageView (dentro de un contenedor con altura fija)
+    // CAROUSEL DE LUGARES
     // ============================================
     return SizedBox(
-      height:
-          MediaQuery.of(context).size.height * 0.55, // ajusta según tu diseño
+      height: MediaQuery.of(context).size.height * 0.55,
       child: PageView.builder(
         controller: _pageController,
         itemCount: lugares.length,
         itemBuilder: (context, index) {
           final lugar = lugares[index];
 
-          // AnimatedBuilder para efecto de escala
           return AnimatedBuilder(
             animation: _pageController,
             builder: (context, child) {

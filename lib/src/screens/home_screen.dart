@@ -10,10 +10,13 @@ import 'package:flutter/material.dart'; // Importa Flutter (widgets, temas, etc.
 import 'area_fija/header/area_menu_info.dart';
 
 // Importa el widget que contiene toda la lógica del Top 10 (API, estado, carrusel)
-import 'pantallaInicio/area_top_eventos.dart';
+// import 'eventos/area_top_eventos.dart';
+
+// Importa el widget que contiene toda la lógica del carousel (API, estado, PageView)
+import 'pantallaInicio/carousel/area_lugares_carousel.dart';
 
 // Importa las secciones visuales simples existentes
-import 'pantallaInicio/area_sabia_que.dart';
+import 'eventos/area_sabia_que.dart';
 import 'area_fija/footer/area_banners.dart';
 import 'area_fija/footer/area_footer.dart';
 
@@ -22,6 +25,9 @@ import '../models/app_models.dart';
 
 // Importamos el nuevo widget FooterBackground
 import 'area_fija/footer/footer_background.dart';
+
+// Importa el widget del header con título y botón de regreso
+import 'pantallaInicio/carousel/header_rutas.dart';
 
 // ============================================
 // WIDGET PRINCIPAL: HomeScreen
@@ -33,7 +39,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Scaffold principal de la pantalla de inicio
     return Scaffold(
-      backgroundColor: Colors.white, // Fondo blanco general de la pantalla
+      backgroundColor: Color(0xFF085029), // Fondo blanco general de la pantalla
       body: SingleChildScrollView(
         // Permite scroll vertical de toda la pantalla
         physics:
@@ -50,8 +56,12 @@ class HomeScreen extends StatelessWidget {
             // ------------------------------------------------
             // SECCIÓN 2: Top 10 de eventos
             // (contiene toda la lógica de carga y el carrusel)
+            // const AreaTopEventos(),
             // ------------------------------------------------
-            const AreaTopEventos(),
+            HeaderRutas(),
+            SizedBox(height: 40),
+
+            AreaLugaresCarousel(),
 
             // ------------------------------------------------
             // SECCIÓN 3: ¿SABÍAS QUÉ?

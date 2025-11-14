@@ -7,8 +7,13 @@ class Endpoints {
   static const String login = '/auth/login'; // POST - Iniciar sesión
   static const String register = '/auth/register'; // POST - Registrar usuario
 
-  // 🎉 Endpoints de eventos (NUEVOS)
+  // 🎉 Endpoints de eventos
   static const String eventosTop10 = '/public/eventos/top10';
   static const String eventos = '/public/eventos';
   static const String eventoById = '/public/eventos'; // Usar con /{id}
+
+  // 🗺️ Endpoints de rutas y experiencias
+  static const String lugaresTop10 = '/public/lugares/top10';
+  static const String lugares = '/public/lugares';
+  static const String lugarById = '/public/lugares';
 }

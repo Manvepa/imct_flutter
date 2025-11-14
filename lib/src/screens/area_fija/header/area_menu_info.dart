@@ -11,6 +11,9 @@ import 'area_info_basica.dart';
 import 'area_menu.dart';
 import '../../../constants/app_images.dart';
 
+// Importamos logger global
+final _logger = Logger();
+
 // ============================================
 // WIDGET PRINCIPAL: Área de información básica + menú
 // ============================================
@@ -133,7 +136,8 @@ class _AreaMenuInfoState extends State<AreaMenuInfo> {
     // Rutas y Experiencias
     if (destino == 'Rutas y Experiencias') {
       // Usamos Navigator.pushNamed para navegar a la ruta registrada
-      Navigator.pushNamed(context, '/rutasExperiencias');
+      // Navigator.pushNamed(context, '/rutasExperiencias');
+      _logger.i('Ruta de Rutas y Experiencias deshabilitada temporalmente.');
     } else {
       ScaffoldMessenger.of(
         context,
